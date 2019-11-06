@@ -1,4 +1,4 @@
-# live_data_example
-An elementary implementation of the Model View View Model pattern with live data in Android
+# COM4510/COM6510 Software Development for Mobile Devices Assignment
+===
 
-For the students of the University of Sheffield - see slides
+TBA
