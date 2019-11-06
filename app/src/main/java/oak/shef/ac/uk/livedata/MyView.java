@@ -2,7 +2,7 @@
  * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
-package oak.shef.ac.uk.myapplication;
+package oak.shef.ac.uk.livedata;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
@@ -14,8 +14,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MyActivity extends AppCompatActivity {
-    LiveData<String> stringToDisplay;
+import oak.shef.ac.uk.livedata.database.NumberData;
+
+public class MyView extends AppCompatActivity {
+    LiveData<NumberData> stringToDisplay;
     private MyViewModel myViewModel;
 
     @Override
@@ -28,11 +30,15 @@ public class MyActivity extends AppCompatActivity {
         // Add an observer on the LiveData. The onChanged() method fires
         // when the observed data changes and the activity is
         // in the foreground.
-        myViewModel.getStringToDisplay().observe(this, new Observer<String>(){
+        myViewModel.getNumberDataToDisplay().observe(this, new Observer<NumberData>(){
             @Override
-            public void onChanged(@Nullable final String newValue) {
+            public void onChanged(@Nullable final NumberData newValue) {
                 TextView tv= findViewById(R.id.textView);
-                tv.setText(newValue);
+                // if database is empty
+                if (newValue==null)
+                    tv.setText("click button");
+                else
+                    tv.setText(newValue.getNumber()+"");
             }});
 
 

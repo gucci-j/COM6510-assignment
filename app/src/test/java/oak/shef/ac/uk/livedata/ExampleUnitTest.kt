@@ -1,4 +1,4 @@
-package oak.shef.ac.uk.myapplication
+package oak.shef.ac.uk.livedata
 
 import org.junit.Test
 
