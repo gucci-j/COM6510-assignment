@@ -21,6 +21,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -75,15 +76,20 @@ public class MyView extends AppCompatActivity {
 
 
         // for camera
-        checkPermissions(getApplicationContext()); // required by Android 6.0 +
-        initEasyImage();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EasyImage.openCamera(getActivity(), 0);
-            }
-        });
+        if (checkCameraHardware(getApplicationContext()) == true) {
+            Log.i("Debug", "onCreate: Has a camera");
+            checkPermissions(getApplicationContext()); // required by Android 6.0 +
+            initEasyImage();
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
+            if (fab.getVisibility() != View.VISIBLE) {fab.setVisibility(View.VISIBLE);}
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    EasyImage.openCamera(getActivity(), 0);
+                }
+            });
+        }
+
 
         // for gallery
         FloatingActionButton fabGallery = (FloatingActionButton) findViewById(R.id.fab_gallery);
@@ -132,6 +138,18 @@ public class MyView extends AppCompatActivity {
                 .setCopyTakenPhotosToPublicGalleryAppFolder(true)
                 .setCopyPickedImagesToPublicGalleryAppFolder(false)
                 .setAllowMultiplePickInGallery(true);
+    }
+
+    /** Check if this device has a camera */
+    /** ref: https://developer.android.com/guide/topics/media/camera */
+    private boolean checkCameraHardware(final Context context) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+            // this device has a camera
+            return true;
+        } else {
+            // no camera on this device
+            return false;
+        }
     }
 
     private void checkPermissions(final Context context) {

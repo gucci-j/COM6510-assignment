@@ -50,4 +50,6 @@ public class MyViewModel extends AndroidViewModel {
     public void generateNewNumber() {
         mRepository.generateNewNumber();
     }
+
+
 }
