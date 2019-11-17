@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
+ * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
 package oak.shef.ac.uk.livedata;
@@ -39,6 +39,7 @@ public class MyView extends AppCompatActivity {
 
     // for camera
     private Activity activity;
+    static private Context context;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
 
@@ -78,10 +79,11 @@ public class MyView extends AppCompatActivity {
         // for camera
         if (checkCameraHardware(getApplicationContext()) == true) {
             Log.i("Debug", "onCreate: Has a camera");
+
             checkPermissions(getApplicationContext()); // required by Android 6.0 +
             initEasyImage();
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
-            if (fab.getVisibility() != View.VISIBLE) {fab.setVisibility(View.VISIBLE);}
+            myViewModel.setCameraButton(fab);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -99,31 +101,16 @@ public class MyView extends AppCompatActivity {
                 EasyImage.openGallery(getActivity(), 0);
             }
         });
-    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
+        // for browsing
+        // ref: https://ideacloud.co.jp/dev/android_studio_intent.html
+        Button buttonBrowse = findViewById(R.id.button2);
+        buttonBrowse.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
-                //Some error handling
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onImagesPicked(List<File> imageFiles, EasyImage.ImageSource source, int type) {
-                // onPhotosReturned(imageFiles);
-            }
-
-            @Override
-            public void onCanceled(EasyImage.ImageSource source, int type) {
-                //Cancel handling, you might wanna remove taken photo if it was canceled
-                if (source == EasyImage.ImageSource.CAMERA) {
-                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(getActivity());
-                    if (photoFile != null) photoFile.delete();
-                }
+            public void onClick(View view) {
+                Intent intent = new Intent(MyView.this, ShowImageView.class);
+                startActivity(intent);
             }
         });
     }
@@ -194,6 +181,44 @@ public class MyView extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+                //Some error handling
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onImagesPicked(List<File> imageFiles, EasyImage.ImageSource source, int type) {
+                onPhotosReturned(imageFiles);
+            }
+
+            @Override
+            public void onCanceled(EasyImage.ImageSource source, int type) {
+                //Cancel handling, you might wanna remove taken photo if it was canceled
+                if (source == EasyImage.ImageSource.CAMERA) {
+                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(getActivity());
+                    if (photoFile != null) photoFile.delete();
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Save to the picturelist
+     * @param returnedPhotos
+     */
+    private void onPhotosReturned(List<File> returnedPhotos) {
+        myViewModel.saveImage(returnedPhotos);
+        // mAdapter.notifyDataSetChanged();
+        // mRecyclerView.scrollToPosition(returnedPhotos.size() - 1);
     }
 }
 

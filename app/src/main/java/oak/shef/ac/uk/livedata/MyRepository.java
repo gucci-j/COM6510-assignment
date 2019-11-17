@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
+ * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
 package oak.shef.ac.uk.livedata;
@@ -19,6 +19,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import oak.shef.ac.uk.livedata.database.MyDAO;
@@ -28,6 +31,8 @@ import pl.aprilapps.easyphotopicker.EasyImage;
 
 class MyRepository extends ViewModel {
     private final MyDAO mDBDao;
+    // for storing images
+    private List<ImageElement> myPictureList = new ArrayList<>();
 
     public MyRepository(Application application) {
         MyRoomDatabase db = MyRoomDatabase.getDatabase(application);
@@ -67,6 +72,26 @@ class MyRepository extends ViewModel {
             //            Log.i("TAG", ix+"");
             return null;
         }
+    }
+
+
+    public void savePhoto(List<File> returnedPhotos) {
+        myPictureList.addAll(getImageElements(returnedPhotos));
+        Log.i("Debug", "savePhoto: Image has been added");
+    }
+
+    /**
+     * given a list of photos, it creates a list of myElements
+     * @param returnedPhotos
+     * @return
+     */
+    private List<ImageElement> getImageElements(List<File> returnedPhotos) {
+        List<ImageElement> imageElementList = new ArrayList<>();
+        for (File file: returnedPhotos){
+            ImageElement element= new ImageElement(file);
+            imageElementList.add(element);
+        }
+        return imageElementList;
     }
 
 }
