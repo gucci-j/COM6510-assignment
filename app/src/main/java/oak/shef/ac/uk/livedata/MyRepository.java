@@ -94,4 +94,9 @@ class MyRepository extends ViewModel {
         return imageElementList;
     }
 
+    public List<ImageElement> getPhotos() {
+        Log.i("Debug", "getPhotos: Images have been returned");
+        Log.i("Debug", String.valueOf(myPictureList.size()));
+        return myPictureList;
+    }
 }

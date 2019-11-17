@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
 import oak.shef.ac.uk.livedata.database.NumberData;
@@ -110,6 +111,9 @@ public class MyView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MyView.this, ShowImageView.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("IMG", (Serializable)myViewModel.getPhotos());
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });

@@ -77,4 +77,10 @@ public class MyViewModel extends AndroidViewModel {
     public void saveImage(List<File> returnedPhotos) {
         mRepository.savePhoto(returnedPhotos);
     }
+
+    /**
+     * Get photos
+     * @return
+     */
+    public List<ImageElement> getPhotos() {return mRepository.getPhotos();}
 }

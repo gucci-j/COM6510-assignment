@@ -5,8 +5,9 @@
 package oak.shef.ac.uk.livedata;
 
 import java.io.File;
+import java.io.Serializable;
 
-public class ImageElement {
+public class ImageElement implements Serializable {
     int image=-1;
     File file=null;
 
