@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
     static private Context context;
     private static List<ImageElement> items = new ArrayList<>();
 
-    /*
     public ImageAdapter(List<ImageElement> items) {
         this.items = items;
     }
@@ -32,7 +32,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
         this.items = items;
         context = cont;
     }
-    */
 
     @Override
     public View_Holder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -40,7 +39,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_image,
                 parent, false);
         View_Holder holder = new View_Holder(v);
-        context = parent.getContext();
+        // context = parent.getContext();
         return holder;
     }
 
@@ -56,16 +55,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                 Bitmap myBitmap = BitmapFactory.decodeFile(items.get(position).file.getAbsolutePath());
                 holder.imageView.setImageBitmap(myBitmap);
             }
-            /*
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.i("Debug", "ImageAdapter: onClick");
                     Intent intent = new Intent(context, ShowImageActivity.class);
                     intent.putExtra("position", position);
                     context.startActivity(intent);
                 }
             });
-            */
         }
         //animate(holder);
     }

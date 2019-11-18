@@ -20,6 +20,7 @@ import java.util.List;
 public class ShowImageView extends AppCompatActivity {
     private MyViewModel myViewModel;
     private List<ImageElement> myPictureList;
+    private RecyclerView.Adapter  mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +39,10 @@ public class ShowImageView extends AppCompatActivity {
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler_view);
         int numberOfColumns = 4;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-        ImageAdapter mAdapter = new ImageAdapter();
+        mAdapter= new ImageAdapter(ShowImageView.this, myPictureList);
         mRecyclerView.setAdapter(mAdapter);
         // mAdapter.setItems(initData());
-        mAdapter.setItems(myPictureList);
+        // mAdapter.setItems(myPictureList);
         // mAdapter.notifyDataSetChanged();
     }
 
