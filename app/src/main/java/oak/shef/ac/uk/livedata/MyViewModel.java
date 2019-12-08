@@ -14,6 +14,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -24,18 +25,18 @@ import android.view.View;
 import java.io.File;
 import java.util.List;
 
-import oak.shef.ac.uk.livedata.database.NumberData;
+import oak.shef.ac.uk.livedata.database.PhotoData;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
 
-    LiveData<NumberData> numberDataToDisplay;
+    // LiveData<NumberData> numberDataToDisplay;
 
     public MyViewModel (Application application) {
         super(application);
         // creation and connection to the Repository
         mRepository = new MyRepository(application);
-        numberDataToDisplay = mRepository.getNumberData();
+        // numberDataToDisplay = mRepository.getNumberData();
     }
 
 
@@ -43,27 +44,31 @@ public class MyViewModel extends AndroidViewModel {
      * getter for the live data
      * @return
      */
+    /*
     LiveData<NumberData> getNumberDataToDisplay() {
         if (numberDataToDisplay == null) {
             numberDataToDisplay = new MutableLiveData<NumberData>();
         }
         return numberDataToDisplay;
     }
+    */
 
     /**
      * request by the UI to generate a new random number
      */
+    /*
     public void generateNewNumber() {
         mRepository.generateNewNumber();
     }
 
+     */
 
     /**
      * Change UI to show a camera button
      * @param button
      */
     public void setCameraButton(FloatingActionButton button) {
-        Log.i("Debug", "setCameraButton: Make it visible");
+        Log.i("debug", "setCameraButton: Make it visible");
         if (button.getVisibility() != View.VISIBLE) {
             button.setVisibility(View.VISIBLE);
         }
@@ -83,4 +88,16 @@ public class MyViewModel extends AndroidViewModel {
      * @return
      */
     public List<ImageElement> getPhotos() {return mRepository.getPhotos();}
+
+
+    /**
+     * registerPhoto
+     * Desc: make a new PhotoData entry and register it to the database.
+     * @param uri this is String type. Be careful.
+     * @param timeStamp String.
+     */
+    public void registerPhoto(String uri, String timeStamp) {
+        // Need to compatible with LiveData?
+        mRepository.insertPhoto(new PhotoData(uri, timeStamp));
+    }
 }

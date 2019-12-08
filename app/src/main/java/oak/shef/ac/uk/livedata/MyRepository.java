@@ -24,38 +24,87 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import oak.shef.ac.uk.livedata.database.MyDAO;
 import oak.shef.ac.uk.livedata.database.MyRoomDatabase;
-import oak.shef.ac.uk.livedata.database.NumberData;
+import oak.shef.ac.uk.livedata.database.PhotoDAO;
+import oak.shef.ac.uk.livedata.database.PhotoData;
+import oak.shef.ac.uk.livedata.database.TripDAO;
+import oak.shef.ac.uk.livedata.database.TripData;
 import pl.aprilapps.easyphotopicker.EasyImage;
 
 class MyRepository extends ViewModel {
-    private final MyDAO mDBDao;
+    private final TripDAO mTripDBDao;
+    private final PhotoDAO mPhotoDBDao;
+    // for storing all trips
+    private LiveData<List<TripData>> allTrips;
+    // for storing all photos
+    private LiveData<List<PhotoData>> allPhotos;
+
     // for storing images
     private List<ImageElement> myPictureList = new ArrayList<>();
 
     public MyRepository(Application application) {
         MyRoomDatabase db = MyRoomDatabase.getDatabase(application);
-        mDBDao = db.myDao();
+        mTripDBDao = db.tripDao();
+        mPhotoDBDao = db.photoDao();
+        allTrips = mTripDBDao.getAllTrips();
+        allPhotos = mPhotoDBDao.getAllPhotos();
     }
+
+    public void insertPhoto(PhotoData photo) {
+        new insertPhotoAsyncTask(mPhotoDBDao).execute(photo);
+    }
+
+    // Add delete and update if possible here!
+
+    public LiveData<List<TripData>> getAllTrips() {
+        return allTrips;
+    }
+
+    public LiveData<List<PhotoData>> getAllPhotos() {
+        return allPhotos;
+    }
+
+    private static class insertPhotoAsyncTask extends AsyncTask<PhotoData, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private PhotoDAO mPhotoAsyncTaskDao;
+
+        private insertPhotoAsyncTask(PhotoDAO mPhotoAsyncTaskDao) {
+            this.mPhotoAsyncTaskDao = mPhotoAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(PhotoData... photos) {
+            // this can be extended with multiple images.
+            Log.i("MyRepository", "Photo registered: " +photos[0].getFilename()+ " " +
+                    photos[0].getTime());
+            mPhotoAsyncTaskDao.insert(photos[0]);
+            return null;
+        }
+    }
+
 
     /**
      * it gets the data when changed in the db and returns it to the ViewModel
      * @return
      */
+    /*
     public LiveData<NumberData> getNumberData() {
         return mDBDao.retrieveOneNumber();
     }
+     */
 
     /**
      * called by the UI to request the generation of a new random number
      */
+    /*
     public void generateNewNumber() {
         Random r = new Random();
         int i1 = r.nextInt(10000 - 1) + 1;
         new insertAsyncTask(mDBDao).execute(new NumberData(i1));
     }
+     */
 
+    /*
     private static class insertAsyncTask extends AsyncTask<NumberData, Void, Void> {
         private MyDAO mAsyncTaskDao;
         private LiveData<NumberData> numberData;
@@ -73,11 +122,12 @@ class MyRepository extends ViewModel {
             return null;
         }
     }
+     */
 
 
     public void savePhoto(List<File> returnedPhotos) {
         myPictureList.addAll(getImageElements(returnedPhotos));
-        Log.i("Debug", "savePhoto: Image has been added");
+        Log.i("debug", "savePhoto: Image has been added");
     }
 
     /**
@@ -95,8 +145,8 @@ class MyRepository extends ViewModel {
     }
 
     public List<ImageElement> getPhotos() {
-        Log.i("Debug", "getPhotos: Images have been returned");
-        Log.i("Debug", String.valueOf(myPictureList.size()));
+        Log.i("debug", "getPhotos: Images have been returned");
+        Log.i("debug", String.valueOf(myPictureList.size()));
         return myPictureList;
     }
 }

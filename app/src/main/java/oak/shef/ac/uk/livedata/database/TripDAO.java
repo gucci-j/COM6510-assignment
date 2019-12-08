@@ -10,13 +10,25 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
+import java.util.List;
+
+/**
+ * Data Access Objects for Trip data
+ * Ref: https://developer.android.com/training/data-storage/room/accessing-data
+ */
 @Dao
-public interface MyDAO {
+public interface TripDAO {
+    @Insert
+    void insert(TripData tripData);
+
+    @Query("SELECT * from trip_table ORDER BY id DESC")
+    LiveData<List<TripData>> getAllTrips();
+
+    // Can add delete and update?
+
+    /*
     @Insert
     void insertAll(NumberData... numberData);
-
-    @Insert
-    void insert(NumberData numberData);
 
     @Delete
     void delete(NumberData numberData);
@@ -30,4 +42,5 @@ public interface MyDAO {
 
     @Query("SELECT COUNT(*) FROM numberData")
     int howManyElements();
+     */
 }

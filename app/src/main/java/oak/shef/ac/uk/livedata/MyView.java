@@ -44,12 +44,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import oak.shef.ac.uk.livedata.database.NumberData;
+// import oak.shef.ac.uk.livedata.database.NumberData;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 
 public class MyView extends AppCompatActivity {
-    LiveData<NumberData> stringToDisplay;
+    // LiveData<NumberData> stringToDisplay;
     private MyViewModel myViewModel;
 
     // for camera
@@ -62,6 +62,7 @@ public class MyView extends AppCompatActivity {
     private final static int REQUEST_PERMISSION = 1002;
     private Uri cameraURI;
     private File cameraFILE;
+    private String timeStamp;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +72,7 @@ public class MyView extends AppCompatActivity {
 
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
+        /*
         // Add an observer on the LiveData. The onChanged() method fires
         // when the observed data changes and the activity is
         // in the foreground.
@@ -94,6 +96,7 @@ public class MyView extends AppCompatActivity {
                 myViewModel.generateNewNumber();
             }
         });
+         */
 
 
         // for taking a photo
@@ -254,7 +257,7 @@ public class MyView extends AppCompatActivity {
         // designate an external storage folder
         File saveFolder = getExternalFilesDir(Environment.DIRECTORY_DCIM);
         // obtain a timestamp for a photo
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         // define file name
         String fileName = String.format("COM6510_%s.jpg", timeStamp);
 
@@ -306,7 +309,8 @@ public class MyView extends AppCompatActivity {
 
         if (requestCode == RESULT_CAMERA) {
             if(cameraURI != null){
-                registerDatabase(cameraFILE);
+                registerExternalDatabase(cameraFILE);
+                onURIReturned();
             }
             else{
                 Log.d("debug","cameraURI is null");
@@ -317,16 +321,26 @@ public class MyView extends AppCompatActivity {
 
     /**
      * registerDatabase
-     * Desc: This function is for registering photos to the external storage.
+     * Desc: This function is for registering a photo to the external storage.
+     *       Not related to the room database!
      * @param file
      */
-    private void registerDatabase(File file) {
+    private void registerExternalDatabase(File file) {
         ContentValues contentValues = new ContentValues();
         ContentResolver contentResolver = MyView.this.getContentResolver();
         contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         contentValues.put("_data", file.getAbsolutePath());
         contentResolver.insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+    }
+
+
+    /**
+     * onURIReturned
+     * Desc: This is for registering the uri/timestamp of a Photo to a photo database.
+     */
+    private void onURIReturned() {
+        myViewModel.registerPhoto(cameraURI.toString(), timeStamp);
     }
 
     /**
