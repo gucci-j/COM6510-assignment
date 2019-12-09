@@ -31,6 +31,7 @@ import oak.shef.ac.uk.livedata.database.TripDAO;
 import oak.shef.ac.uk.livedata.database.TripData;
 import pl.aprilapps.easyphotopicker.EasyImage;
 
+
 class MyRepository extends ViewModel {
     private final TripDAO mTripDBDao;
     private final PhotoDAO mPhotoDBDao;
@@ -38,9 +39,6 @@ class MyRepository extends ViewModel {
     private LiveData<List<TripData>> allTrips;
     // for storing all photos
     private LiveData<List<PhotoData>> allPhotos;
-
-    // for storing images -> to be removed
-    private List<ImageElement> myPictureList = new ArrayList<>();
 
 
     public MyRepository(Application application) {
@@ -60,6 +58,7 @@ class MyRepository extends ViewModel {
      * @param photo PhotoData from ViewModel (View)
      */
     public void insertPhoto(PhotoData photo) {
+        Log.d("debug","insertPhoto: Got data");
         new insertPhotoAsyncTask(mPhotoDBDao).execute(photo);
     }
 
@@ -74,7 +73,7 @@ class MyRepository extends ViewModel {
         @Override
         protected Void doInBackground(PhotoData... photos) {
             // this can be extended with multiple images.
-            Log.i("MyRepository", "Photo registered: " +photos[0].getFilename()+ " " +
+            Log.i("debug", "MyRepository: Photo registered: " +photos[0].getFilename()+ " " +
                     photos[0].getTime());
             mPhotoAsyncTaskDao.insert(photos[0]);
             return null;
@@ -101,7 +100,7 @@ class MyRepository extends ViewModel {
 
         @Override
         protected Void doInBackground(TripData... trips) {
-            Log.i("MyRepository", "Trip registered: " +trips[0].getId()+ " " +
+            Log.i("debug", "MyRepository: Trip registered: " +trips[0].getId()+ " " +
                     trips[0].getTitle()+ " " +trips[0].getDate());
             mTripAsyncTaskDao.insert(trips[0]);
             return null;
@@ -159,16 +158,12 @@ class MyRepository extends ViewModel {
      */
 
 
-    public void savePhoto(List<File> returnedPhotos) {
-        myPictureList.addAll(getImageElements(returnedPhotos));
-        Log.i("debug", "savePhoto: Image has been added");
-    }
-
     /**
-     * given a list of photos, it creates a list of myElements
+     * given a list of photos, it creates a list of myElements: to be removed
      * @param returnedPhotos
      * @return
      */
+    /*
     private List<ImageElement> getImageElements(List<File> returnedPhotos) {
         List<ImageElement> imageElementList = new ArrayList<>();
         for (File file: returnedPhotos){
@@ -178,9 +173,5 @@ class MyRepository extends ViewModel {
         return imageElementList;
     }
 
-    public List<ImageElement> getPhotos() {
-        Log.i("debug", "getPhotos: Images have been returned");
-        Log.i("debug", String.valueOf(myPictureList.size()));
-        return myPictureList;
-    }
+     */
 }

@@ -19,6 +19,13 @@ public abstract class MyRoomDatabase extends RoomDatabase {
     public abstract TripDAO tripDao();
     public abstract PhotoDAO photoDao();
 
+    /**
+     * getDatabase
+     * Desc: This returns photo/trip database. Because this is defined using static method,
+     *       the app should only have the same database between activities.
+     * @param context
+     * @return MyRoomDatabase
+     */
     public static MyRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (MyRoomDatabase.class) {
@@ -43,10 +50,4 @@ public abstract class MyRoomDatabase extends RoomDatabase {
             super.onCreate(db);
         }
     };
-
-    /*
-    private static class populatePhotoDBAsyncTask extends AsyncTask<Void, Void, Void> {
-
-    }
-     */
 }

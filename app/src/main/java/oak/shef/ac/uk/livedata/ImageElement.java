@@ -4,18 +4,23 @@
 
 package oak.shef.ac.uk.livedata;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
 import java.io.File;
 import java.io.Serializable;
 
 public class ImageElement implements Serializable {
-    int image=-1;
-    File file=null;
+    int image = -1;
+    Bitmap file = null;
+    Uri uri = null;
 
     public ImageElement(int image) {
         this.image = image;
     }
 
-    public ImageElement(File fileX) {
+    public ImageElement(Bitmap fileX, Uri uriX) {
         file = fileX;
+        uri = uriX;
     }
 }

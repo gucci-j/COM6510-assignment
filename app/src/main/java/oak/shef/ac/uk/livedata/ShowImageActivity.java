@@ -6,10 +6,15 @@ package oak.shef.ac.uk.livedata;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
+
+import java.io.FileDescriptor;
+import java.io.IOException;
 
 public class ShowImageActivity extends AppCompatActivity {
     @Override
@@ -19,18 +24,30 @@ public class ShowImageActivity extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         int position = -1;
-        Log.i("Debug", "ShowImageActivity: IN");
+        Log.i("debug", "ShowImageActivity: onCreate()");
 
         if(b != null) {
             position = b.getInt("position");
             if (position!=-1){
                 ImageView imageView = (ImageView) findViewById(R.id.image);
                 ImageElement element= ImageAdapter.getItems().get(position);
-                if (element.image!=-1) {
+                if (element.image != -1) {
                     imageView.setImageResource(element.image);
-                } else if (element.file!=null) {
-                    Bitmap myBitmap = BitmapFactory.decodeFile(element.file.getAbsolutePath());
-                    imageView.setImageBitmap(myBitmap);
+                } else if (element.file != null) {
+                    Bitmap bmp = null;
+                    try {
+                        ParcelFileDescriptor pfDescriptor = null;
+                        pfDescriptor = ShowImageActivity.this.getContentResolver().openFileDescriptor(element.uri, "r");
+                        if (pfDescriptor != null) {
+                            FileDescriptor fileDescriptor = pfDescriptor.getFileDescriptor();
+                            bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                            pfDescriptor.close();
+                        }
+                        imageView.setImageBitmap(bmp);
+                    } catch (IOException e) {
+                        Log.i("debug", "ShowImageActivity: Error");
+                        e.printStackTrace();
+                    }
                 }
             }
         }

@@ -86,23 +86,9 @@ public class MyViewModel extends AndroidViewModel {
      */
 
 
-    /**
-     * Save photos
-     * @param returnedPhotos
-     */
-    public void saveImage(List<File> returnedPhotos) {
-        mRepository.savePhoto(returnedPhotos);
-    }
 
     /**
-     * Get photos
-     * @return
-     */
-    public List<ImageElement> getPhotos() {return mRepository.getPhotos();}
-
-
-    /**
-     * registerPhoto
+     * registerPhoto -> to be replaced by insertPhoto
      * Desc: make a new PhotoData entry and register it to the database.
      * @param uri this is String type. Be careful.
      * @param timeStamp String.

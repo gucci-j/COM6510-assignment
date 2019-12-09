@@ -44,21 +44,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-// import oak.shef.ac.uk.livedata.database.NumberData;
 import oak.shef.ac.uk.livedata.database.PhotoData;
 import oak.shef.ac.uk.livedata.database.TripData;
-import pl.aprilapps.easyphotopicker.DefaultCallback;
-import pl.aprilapps.easyphotopicker.EasyImage;
 
 public class MyView extends AppCompatActivity {
     private MyViewModel myViewModel;
 
-    // for camera
-    private Activity activity;
-    static private Context context;
-    private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
-    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
-
+    // for taking & uploading a photo
     private final static int RESULT_CAMERA = 1001;
     private final static int REQUEST_PERMISSION = 1002;
     private static final int READ_REQUEST_CODE = 1003;
@@ -70,7 +62,6 @@ public class MyView extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        activity = this;
 
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
@@ -120,7 +111,6 @@ public class MyView extends AppCompatActivity {
 
 
         // for taking a photo
-        initEasyImage();
         if (checkCameraHardware(getApplicationContext()) == true) {
             // A camera button will be visible
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
@@ -175,25 +165,9 @@ public class MyView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MyView.this, ShowImageView.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("IMG", (Serializable)myViewModel.getPhotos());
-                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
-    }
-
-
-    public Activity getActivity() {
-        return activity;
-    }
-
-    private void initEasyImage() {
-        EasyImage.configuration(this)
-                .setImagesFolderName("EasyImage sample")
-                .setCopyTakenPhotosToPublicGalleryAppFolder(true)
-                .setCopyPickedImagesToPublicGalleryAppFolder(false)
-                .setAllowMultiplePickInGallery(true);
     }
 
 
@@ -287,7 +261,7 @@ public class MyView extends AppCompatActivity {
 
     /**
      * Camera Intent
-     * Desc:
+     * Desc: TBA
      * Ref: https://stackoverflow.com/questions/42992989/storing-image-resource-id-in-sqlite-database-and-retrieving-it-in-int-array
      *      https://developer.android.com/training/camera/photobasics#TaskPath
      */
@@ -313,7 +287,8 @@ public class MyView extends AppCompatActivity {
 
     /**
      * onActivityResult
-     * Desc: This function is for adding images to the external storage or uploading images from the gallery.
+     * Desc: This function is for adding images to the external storage
+     *       or uploading images from the gallery.
      * @param requestCode
      * @param resultCode
      * @param data
@@ -321,32 +296,7 @@ public class MyView extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("debug","onActivityResult()");
-
-        // This will be removed
-        /*
-        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
-            @Override
-            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
-                //Some error handling
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onImagesPicked(List<File> imageFiles, EasyImage.ImageSource source, int type) {
-                onPhotosReturned(imageFiles);
-            }
-
-            @Override
-            public void onCanceled(EasyImage.ImageSource source, int type) {
-                //Cancel handling, you might wanna remove taken photo if it was canceled
-                if (source == EasyImage.ImageSource.CAMERA) {
-                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(getActivity());
-                    if (photoFile != null) photoFile.delete();
-                }
-            }
-        });
-         */
+        Log.d("debug","MyView: onActivityResult()");
 
         // The ACTION_OPEN_DOCUMENT intent was sent with the request code
         // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
@@ -358,6 +308,7 @@ public class MyView extends AppCompatActivity {
             // Pull that URI using data.getData().
             Uri uri = null;
             if (data != null) {
+                Log.d("debug","Got data");
                 uri = data.getData();
                 timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
                 onURIReturned(uri, timeStamp);
@@ -400,17 +351,6 @@ public class MyView extends AppCompatActivity {
      */
     private void onURIReturned(Uri uri, String timeStamp) {
         myViewModel.registerPhoto(uri.toString(), timeStamp);
-    }
-
-    /**
-     * onPhotosReturned -> to be removed
-     * Desc: save to the picturelist
-     * @param returnedPhotos
-     */
-    private void onPhotosReturned(List<File> returnedPhotos) {
-        myViewModel.saveImage(returnedPhotos);
-        // mAdapter.notifyDataSetChanged();
-        // mRecyclerView.scrollToPosition(returnedPhotos.size() - 1);
     }
 }
 

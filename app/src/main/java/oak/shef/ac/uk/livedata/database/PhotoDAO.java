@@ -7,13 +7,23 @@ package oak.shef.ac.uk.livedata.database;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
 
 @Dao
 public interface PhotoDAO {
-    @Insert
+
+    /**
+     * insert
+     * Desc: "onConflict=OnConflictStrategy.REPLACE" is important for updating data.
+     *        If the same image is uploaded, the entry of the image will be replaced
+     *        with the new data.
+     * Ref: https://developer.android.com/reference/android/arch/persistence/room/OnConflictStrategy
+     * @param photoData
+     */
+    @Insert(onConflict=OnConflictStrategy.REPLACE)
     void insert(PhotoData photoData);
 
     @Query("SELECT * from photo_table ORDER BY time DESC")
