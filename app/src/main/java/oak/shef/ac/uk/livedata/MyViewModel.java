@@ -26,9 +26,12 @@ import java.io.File;
 import java.util.List;
 
 import oak.shef.ac.uk.livedata.database.PhotoData;
+import oak.shef.ac.uk.livedata.database.TripData;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
+    private LiveData<List<TripData>> allTrips;
+    private LiveData<List<PhotoData>> allPhotos;
 
     // LiveData<NumberData> numberDataToDisplay;
 
@@ -36,8 +39,27 @@ public class MyViewModel extends AndroidViewModel {
         super(application);
         // creation and connection to the Repository
         mRepository = new MyRepository(application);
-        // numberDataToDisplay = mRepository.getNumberData();
+        allTrips = mRepository.getAllTrips();
+        allPhotos = mRepository.getAllPhotos();
     }
+
+    public void insertPhoto(PhotoData photo) {
+        mRepository.insertPhoto(photo);
+    }
+
+    public void insertTrip(TripData trip) {
+        mRepository.insertTrip(trip);
+    }
+
+    public LiveData<List<TripData>> getAllTrips() {
+        return allTrips;
+    }
+
+    public LiveData<List<PhotoData>> getAllPhotos() {
+        return allPhotos;
+    }
+
+
 
 
     /**
@@ -62,17 +84,6 @@ public class MyViewModel extends AndroidViewModel {
     }
 
      */
-
-    /**
-     * Change UI to show a camera button
-     * @param button
-     */
-    public void setCameraButton(FloatingActionButton button) {
-        Log.i("debug", "setCameraButton: Make it visible");
-        if (button.getVisibility() != View.VISIBLE) {
-            button.setVisibility(View.VISIBLE);
-        }
-    }
 
 
     /**

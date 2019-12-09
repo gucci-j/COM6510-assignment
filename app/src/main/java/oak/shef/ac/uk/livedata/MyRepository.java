@@ -39,8 +39,9 @@ class MyRepository extends ViewModel {
     // for storing all photos
     private LiveData<List<PhotoData>> allPhotos;
 
-    // for storing images
+    // for storing images -> to be removed
     private List<ImageElement> myPictureList = new ArrayList<>();
+
 
     public MyRepository(Application application) {
         MyRoomDatabase db = MyRoomDatabase.getDatabase(application);
@@ -50,18 +51,16 @@ class MyRepository extends ViewModel {
         allPhotos = mPhotoDBDao.getAllPhotos();
     }
 
+
+    /**
+     * insertPhoto
+     * Desc: insert a new photo with this method.
+     *       a photo can be added by using a asynchronous task,
+     *       which is implemented by insertPhotoAsyncTask.
+     * @param photo PhotoData from ViewModel (View)
+     */
     public void insertPhoto(PhotoData photo) {
         new insertPhotoAsyncTask(mPhotoDBDao).execute(photo);
-    }
-
-    // Add delete and update if possible here!
-
-    public LiveData<List<TripData>> getAllTrips() {
-        return allTrips;
-    }
-
-    public LiveData<List<PhotoData>> getAllPhotos() {
-        return allPhotos;
     }
 
     private static class insertPhotoAsyncTask extends AsyncTask<PhotoData, Void, Void> {
@@ -80,6 +79,41 @@ class MyRepository extends ViewModel {
             mPhotoAsyncTaskDao.insert(photos[0]);
             return null;
         }
+    }
+
+    /**
+     * insertTrip
+     * Desc: insert a new trip to the database.
+     *       a trip can be added by using a asynchronous task.
+     * @param trip TripData from ViewModel (View)
+     */
+    public void insertTrip(TripData trip) {
+        new insertTripAsyncTask(mTripDBDao).execute(trip);
+    }
+
+    private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private TripDAO mTripAsyncTaskDao;
+
+        private insertTripAsyncTask(TripDAO mTripAsyncTaskDao) {
+            this.mTripAsyncTaskDao = mTripAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(TripData... trips) {
+            Log.i("MyRepository", "Trip registered: " +trips[0].getId()+ " " +
+                    trips[0].getTitle()+ " " +trips[0].getDate());
+            mTripAsyncTaskDao.insert(trips[0]);
+            return null;
+        }
+    }
+
+    // Add delete and update if possible here!
+    public LiveData<List<TripData>> getAllTrips() {
+        return allTrips;
+    }
+    public LiveData<List<PhotoData>> getAllPhotos() {
+        return allPhotos;
     }
 
 
