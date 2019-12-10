@@ -4,32 +4,20 @@
 
 package oak.shef.ac.uk.livedata;
 
-import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import java.io.File;
-import java.util.ArrayList;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
+
 import java.util.List;
-import java.util.Random;
 
 import oak.shef.ac.uk.livedata.database.MyRoomDatabase;
 import oak.shef.ac.uk.livedata.database.PhotoDAO;
 import oak.shef.ac.uk.livedata.database.PhotoData;
 import oak.shef.ac.uk.livedata.database.TripDAO;
 import oak.shef.ac.uk.livedata.database.TripData;
-import pl.aprilapps.easyphotopicker.EasyImage;
 
 
 class MyRepository extends ViewModel {
@@ -74,7 +62,7 @@ class MyRepository extends ViewModel {
         protected Void doInBackground(PhotoData... photos) {
             // this can be extended with multiple images.
             Log.i("debug", "MyRepository: Photo registered: " +photos[0].getFilename()+ " " +
-                    photos[0].getTime());
+                    photos[0].getTime() +" "+ photos[0].getPressureValue() +" "+ photos[0].getTemperatureValue());
             mPhotoAsyncTaskDao.insert(photos[0]);
             return null;
         }

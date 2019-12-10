@@ -4,11 +4,11 @@
 
 package oak.shef.ac.uk.livedata.database;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
-import android.arch.persistence.room.Query;
+import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public interface PhotoDAO {
      * Ref: https://developer.android.com/reference/android/arch/persistence/room/OnConflictStrategy
      * @param photoData
      */
-    @Insert(onConflict=OnConflictStrategy.REPLACE)
+    @Insert(onConflict= OnConflictStrategy.REPLACE)
     void insert(PhotoData photoData);
 
     @Query("SELECT * from photo_table ORDER BY time DESC")

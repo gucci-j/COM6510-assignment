@@ -4,25 +4,11 @@
 
 package oak.shef.ac.uk.livedata;
 
-import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.view.View;
 
-import java.io.File;
+import android.app.Application;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+
 import java.util.List;
 
 import oak.shef.ac.uk.livedata.database.PhotoData;
@@ -93,8 +79,7 @@ public class MyViewModel extends AndroidViewModel {
      * @param uri this is String type. Be careful.
      * @param timeStamp String.
      */
-    public void registerPhoto(String uri, String timeStamp) {
-        // Need to compatible with LiveData?
-        mRepository.insertPhoto(new PhotoData(uri, timeStamp));
+    public void registerPhoto(String uri, String timeStamp, Float pressureValue, Float temperatureValue) {
+        mRepository.insertPhoto(new PhotoData(uri, timeStamp, pressureValue, temperatureValue));
     }
 }

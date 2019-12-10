@@ -4,12 +4,9 @@
 
 package oak.shef.ac.uk.livedata.database;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.PrimaryKey;
-import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 /**
  * Entity for each photo
@@ -21,21 +18,28 @@ import android.support.annotation.NonNull;
 @Entity(tableName = "photo_table")
 public class PhotoData {
     @PrimaryKey
-    @android.support.annotation.NonNull
-    private String filename; // Filename for the photo
+    @NonNull
+    private String filename; // Filename for the photo: Uri
 
     /*
     @ColumnInfo(name = "trip_id")
     private int tripId; // Id from TripData
      */
+
     private String time; // The time when a photo was taken
-    // Add here for GPS & sensor_data
 
+    // Sensor Data
+    private Float pressureValue;
+    private Float temperatureValue;
 
-    public PhotoData(String filename, String time) {
+    // Add here for GPS
+
+    public PhotoData(String filename, String time, Float pressureValue, Float temperatureValue) {
         this.filename = filename;
         //this.tripId = tripId;
         this.time = time;
+        this.pressureValue = pressureValue;
+        this.temperatureValue = temperatureValue;
     }
 
     @NonNull
@@ -47,9 +51,17 @@ public class PhotoData {
     public int getTripId() {
         return tripId;
     }
-     */
+    */
 
     public String getTime() {
         return time;
+    }
+
+    public Float getPressureValue() {
+        return pressureValue;
+    }
+
+    public Float getTemperatureValue() {
+        return temperatureValue;
     }
 }

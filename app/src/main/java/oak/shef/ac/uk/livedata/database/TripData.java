@@ -4,15 +4,16 @@
 
 package oak.shef.ac.uk.livedata.database;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 
 @Entity(tableName = "trip_table")
 public class TripData {
     @PrimaryKey(autoGenerate = true)
-    @android.support.annotation.NonNull
+    @NonNull
     @ColumnInfo(name = "id")
     private int id = 0; // SQLite automatically increments id
     private String title; // Title of a visit
@@ -24,12 +25,12 @@ public class TripData {
         this.date = date;
     }
 
-    public void setId(@android.support.annotation.NonNull int id) {
+    public void setId(@NonNull int id) {
         this.id = id;
     }
 
 
-    @android.support.annotation.NonNull
+    @NonNull
     public int getId() {
         return id;
     }

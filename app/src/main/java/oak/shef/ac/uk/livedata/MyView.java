@@ -7,9 +7,6 @@ package oak.shef.ac.uk.livedata;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,24 +14,29 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.provider.MediaStore;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.io.Serializable;
@@ -57,6 +59,20 @@ public class MyView extends AppCompatActivity {
     private Uri cameraURI;
     private File cameraFILE;
     private String timeStamp;
+
+    // for camera
+    private Activity activity;
+    private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
+
+    //for barometer and thermometer
+    private Barometer barometer;
+    private Thermometer thermometer;
+    private Float currentPressureValue;
+    private Float currentTemperatureValue;
+
+    //for location
+    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,6 +125,16 @@ public class MyView extends AppCompatActivity {
         });
          */
 
+        // Click 'start' then turn to the Maps view
+        Button trackingStart=findViewById(R.id.tracking);
+        trackingStart.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Intent intent=new Intent(MyView.this,Maps.class);
+                startActivity(intent);
+            }
+        });
+
 
         // for taking a photo
         if (checkCameraHardware(getApplicationContext()) == true) {
@@ -160,7 +186,7 @@ public class MyView extends AppCompatActivity {
 
         // for browsing
         // Ref: https://ideacloud.co.jp/dev/android_studio_intent.html
-        Button buttonBrowse = findViewById(R.id.button2);
+        Button buttonBrowse = findViewById(R.id.browsing);
         buttonBrowse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -168,6 +194,35 @@ public class MyView extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        //for Barometer and Thermometer
+        barometer = new Barometer(this);
+        thermometer = new Thermometer(this);
+
+        //for location
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this,new OnSuccessListener<Location>(){
+            @Override
+            public void onSuccess(Location location){
+                if(location != null){
+
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        barometer.startSensingPressure();
+        thermometer.startSensingTemperature();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        barometer.stopBarometer();
+        thermometer.stopBarometer();
     }
 
 
@@ -262,8 +317,7 @@ public class MyView extends AppCompatActivity {
     /**
      * Camera Intent
      * Desc: TBA
-     * Ref: https://stackoverflow.com/questions/42992989/storing-image-resource-id-in-sqlite-database-and-retrieving-it-in-int-array
-     *      https://developer.android.com/training/camera/photobasics#TaskPath
+     * Ref: https://developer.android.com/training/camera/photobasics#TaskPath
      */
     private void cameraIntent(){
         // designate an external storage folder
@@ -311,6 +365,8 @@ public class MyView extends AppCompatActivity {
                 Log.d("debug","Got data");
                 uri = data.getData();
                 timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+                currentPressureValue =  barometer.getCurrentPressureValue();
+                currentTemperatureValue = thermometer.getCurrentTemperatureValue();
                 onURIReturned(uri, timeStamp);
             }
         }
@@ -319,8 +375,10 @@ public class MyView extends AppCompatActivity {
         // To save images
         if (requestCode == RESULT_CAMERA) {
             if(cameraURI != null){
-                registerExternalDatabase(cameraFILE);
-                onURIReturned(cameraURI, timeStamp);
+                Uri uri = registerExternalDatabase(cameraFILE);
+                currentPressureValue =  barometer.getCurrentPressureValue();
+                currentTemperatureValue = thermometer.getCurrentTemperatureValue();
+                onURIReturned(uri, timeStamp);
             }
             else{
                 Log.d("debug","cameraURI is null");
@@ -334,23 +392,31 @@ public class MyView extends AppCompatActivity {
      * Desc: This function is for registering a photo to the external storage.
      *       Not related to the room database!
      * @param file
+     * @return uri Uri
      */
-    private void registerExternalDatabase(File file) {
+    private Uri registerExternalDatabase(File file) {
         ContentValues contentValues = new ContentValues();
         ContentResolver contentResolver = MyView.this.getContentResolver();
         contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         contentValues.put("_data", file.getAbsolutePath());
-        contentResolver.insert(
+        Uri uri = contentResolver.insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+        Log.i("debug", "registerExternalDatabase: "+uri);
+        return uri;
     }
 
+    // content://oak.shef.ac.uk.myapplication.fileprovider/my_images/Android/data/oak.shef.ac.uk.myapplication/files/DCIM/COM6510_20191210_130459.jpg
+    // content://com.android.providers.media.documents/document/image%3A129 20191210_130606
+    // content://media/external/images/media
+    // content://media/external/images/media/131
+    // content://com.android.providers.media.documents/document/image%3A131
 
     /**
      * onURIReturned
      * Desc: This is for registering the uri/timestamp of a Photo to a photo database.
      */
     private void onURIReturned(Uri uri, String timeStamp) {
-        myViewModel.registerPhoto(uri.toString(), timeStamp);
+        myViewModel.registerPhoto(uri.toString(), timeStamp, currentPressureValue, currentTemperatureValue);
     }
 }
 
