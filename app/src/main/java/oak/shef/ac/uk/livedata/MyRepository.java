@@ -1,56 +1,131 @@
 /*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
+ * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
 package oak.shef.ac.uk.livedata;
 
-import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import java.util.Random;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 
-import oak.shef.ac.uk.livedata.database.MyDAO;
+import java.util.List;
+
 import oak.shef.ac.uk.livedata.database.MyRoomDatabase;
-import oak.shef.ac.uk.livedata.database.NumberData;
-import pl.aprilapps.easyphotopicker.EasyImage;
+import oak.shef.ac.uk.livedata.database.PhotoDAO;
+import oak.shef.ac.uk.livedata.database.PhotoData;
+import oak.shef.ac.uk.livedata.database.TripDAO;
+import oak.shef.ac.uk.livedata.database.TripData;
+
 
 class MyRepository extends ViewModel {
-    private final MyDAO mDBDao;
+    private final TripDAO mTripDBDao;
+    private final PhotoDAO mPhotoDBDao;
+    // for storing all trips
+    private LiveData<List<TripData>> allTrips;
+    // for storing all photos
+    private LiveData<List<PhotoData>> allPhotos;
+
 
     public MyRepository(Application application) {
         MyRoomDatabase db = MyRoomDatabase.getDatabase(application);
-        mDBDao = db.myDao();
+        mTripDBDao = db.tripDao();
+        mPhotoDBDao = db.photoDao();
+        allTrips = mTripDBDao.getAllTrips();
+        allPhotos = mPhotoDBDao.getAllPhotos();
     }
+
+
+    /**
+     * insertPhoto
+     * Desc: insert a new photo with this method.
+     *       a photo can be added by using a asynchronous task,
+     *       which is implemented by insertPhotoAsyncTask.
+     * @param photo PhotoData from ViewModel (View)
+     */
+    public void insertPhoto(PhotoData photo) {
+        Log.d("debug","insertPhoto: Got data");
+        new insertPhotoAsyncTask(mPhotoDBDao).execute(photo);
+    }
+
+    private static class insertPhotoAsyncTask extends AsyncTask<PhotoData, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private PhotoDAO mPhotoAsyncTaskDao;
+
+        private insertPhotoAsyncTask(PhotoDAO mPhotoAsyncTaskDao) {
+            this.mPhotoAsyncTaskDao = mPhotoAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(PhotoData... photos) {
+            // this can be extended with multiple images.
+            Log.i("debug", "MyRepository: Photo registered: " +photos[0].getFilename()+ " " +
+                    photos[0].getTime() +" "+ photos[0].getPressureValue() +" "+ photos[0].getTemperatureValue());
+            mPhotoAsyncTaskDao.insert(photos[0]);
+            return null;
+        }
+    }
+
+    /**
+     * insertTrip
+     * Desc: insert a new trip to the database.
+     *       a trip can be added by using a asynchronous task.
+     * @param trip TripData from ViewModel (View)
+     */
+    public void insertTrip(TripData trip) {
+        new insertTripAsyncTask(mTripDBDao).execute(trip);
+    }
+
+    private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private TripDAO mTripAsyncTaskDao;
+
+        private insertTripAsyncTask(TripDAO mTripAsyncTaskDao) {
+            this.mTripAsyncTaskDao = mTripAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(TripData... trips) {
+            Log.i("debug", "MyRepository: Trip registered: " +trips[0].getId()+ " " +
+                    trips[0].getTitle()+ " " +trips[0].getDate());
+            mTripAsyncTaskDao.insert(trips[0]);
+            return null;
+        }
+    }
+
+    // Add delete and update if possible here!
+    public LiveData<List<TripData>> getAllTrips() {
+        return allTrips;
+    }
+    public LiveData<List<PhotoData>> getAllPhotos() {
+        return allPhotos;
+    }
+
 
     /**
      * it gets the data when changed in the db and returns it to the ViewModel
      * @return
      */
+    /*
     public LiveData<NumberData> getNumberData() {
         return mDBDao.retrieveOneNumber();
     }
+     */
 
     /**
      * called by the UI to request the generation of a new random number
      */
+    /*
     public void generateNewNumber() {
         Random r = new Random();
         int i1 = r.nextInt(10000 - 1) + 1;
         new insertAsyncTask(mDBDao).execute(new NumberData(i1));
     }
+     */
 
+    /*
     private static class insertAsyncTask extends AsyncTask<NumberData, Void, Void> {
         private MyDAO mAsyncTaskDao;
         private LiveData<NumberData> numberData;
@@ -68,5 +143,23 @@ class MyRepository extends ViewModel {
             return null;
         }
     }
+     */
 
+
+    /**
+     * given a list of photos, it creates a list of myElements: to be removed
+     * @param returnedPhotos
+     * @return
+     */
+    /*
+    private List<ImageElement> getImageElements(List<File> returnedPhotos) {
+        List<ImageElement> imageElementList = new ArrayList<>();
+        for (File file: returnedPhotos){
+            ImageElement element= new ImageElement(file);
+            imageElementList.add(element);
+        }
+        return imageElementList;
+    }
+
+     */
 }
