@@ -55,10 +55,12 @@ public class MyView extends AppCompatActivity {
     // for taking & uploading a photo
     private final static int RESULT_CAMERA = 1001;
     private final static int REQUEST_PERMISSION = 1002;
-    private static final int READ_REQUEST_CODE = 1003;
+    private static final int READ_REQUEST_CODE = 42;
     private Uri cameraURI;
     private File cameraFILE;
     private String timeStamp;
+    private boolean type;
+
 
     // for camera
     private Activity activity;
@@ -149,7 +151,8 @@ public class MyView extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (Build.VERSION.SDK_INT >= 23) {
-                        checkPermission();
+                        type = true;
+                        checkPermission(type);
                     }
                     else {
                         cameraIntent();
@@ -165,21 +168,12 @@ public class MyView extends AppCompatActivity {
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // EasyImage.openGallery(getActivity(), 0); -> to be removed
+                if (Build.VERSION.SDK_INT >= 23) {
+                    type = false;
+                    checkPermission(type);
+                } else {
 
-                // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-                // browser.
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                // Filter to only show results that can be "opened", such as a
-                // file (as opposed to a list of contacts or timezones)
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                // Filter to show only images, using the image MIME data type.
-                // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
-                // To search for all documents available via installed storage providers,
-                // it would be "*/*".
-                intent.setType("image/*");
-
-                startActivityForResult(intent, READ_REQUEST_CODE);
+                }
             }
         });
 
@@ -252,11 +246,16 @@ public class MyView extends AppCompatActivity {
      * Desc: This function is for checking permission to get photos.
      * Ref: https://developer.android.com/guide/topics/permissions/overview
      */
-    private void checkPermission(){
+    private void checkPermission(boolean flag){
         Log.d("debug","checkPermission()");
         // If already got permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-            cameraIntent();
+            if (flag == true) {
+                cameraIntent();
+            } else {
+                uploadIntent();
+            }
+
         }
         // If permission is denied
         else{
@@ -279,7 +278,7 @@ public class MyView extends AppCompatActivity {
         } else {
             Toast toast = Toast.makeText(
                     this,
-                    "Need permission for saving images!",
+                    "Need permission for saving and uploading images!",
                     Toast.LENGTH_SHORT);
             toast.show();
 
@@ -303,8 +302,11 @@ public class MyView extends AppCompatActivity {
         Log.d("debug","onRequestPermissionsResult()");
         if (requestCode == REQUEST_PERMISSION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                cameraIntent();
-
+                if (type == true) {
+                    cameraIntent();
+                } else {
+                    uploadIntent();
+                }
             } else {
                 Toast toast = Toast.makeText(this,
                         "Need permission for saving images!", Toast.LENGTH_SHORT);
@@ -312,7 +314,6 @@ public class MyView extends AppCompatActivity {
             }
         }
     }
-
 
     /**
      * Camera Intent
@@ -339,10 +340,30 @@ public class MyView extends AppCompatActivity {
     }
 
 
+    private void uploadIntent() {
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
+        // browser.
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        // Filter to only show results that can be "opened", such as a
+        // file (as opposed to a list of contacts or timezones)
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers,
+        // it would be "*/*".
+        //intent.setType("image/*");
+        //Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
+
     /**
      * onActivityResult
      * Desc: This function is for adding images to the external storage
      *       or uploading images from the gallery.
+     * Ref: https://stackoverflow.com/questions/50542966/permission-denial-accessing-picture-uri-on-app-restart
+     *      https://developer.android.com/guide/topics/providers/document-provider#permissions
      * @param requestCode
      * @param resultCode
      * @param data
@@ -364,6 +385,8 @@ public class MyView extends AppCompatActivity {
             if (data != null) {
                 Log.d("debug","Got data");
                 uri = data.getData();
+                getContentResolver().takePersistableUriPermission(uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
                 currentPressureValue =  barometer.getCurrentPressureValue();
                 currentTemperatureValue = thermometer.getCurrentTemperatureValue();
@@ -378,7 +401,8 @@ public class MyView extends AppCompatActivity {
                 Uri uri = registerExternalDatabase(cameraFILE);
                 currentPressureValue =  barometer.getCurrentPressureValue();
                 currentTemperatureValue = thermometer.getCurrentTemperatureValue();
-                onURIReturned(uri, timeStamp);
+                Log.i("debug", "cameraURI: "+cameraURI);
+                onURIReturned(cameraURI, timeStamp);
             }
             else{
                 Log.d("debug","cameraURI is null");
@@ -400,8 +424,9 @@ public class MyView extends AppCompatActivity {
         contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         contentValues.put("_data", file.getAbsolutePath());
         Uri uri = contentResolver.insert(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
         Log.i("debug", "registerExternalDatabase: "+uri);
+
         return uri;
     }
 
@@ -410,6 +435,9 @@ public class MyView extends AppCompatActivity {
     // content://media/external/images/media
     // content://media/external/images/media/131
     // content://com.android.providers.media.documents/document/image%3A131
+    // 2019-12-10 22:05:01.228 4663-4663/oak.shef.ac.uk.myapplication I/debug: setPhotos: (photoUri) content://media/external/images/media/148
+    // 2019-12-10 22:05:01.239 4663-4663/oak.shef.ac.uk.myapplication I/debug: setPhotos: Error
+    // 2019-12-10 22:05:01.240 4663-4663/oak.shef.ac.uk.myapplication W/System.err: java.io.FileNotFoundException: open failed: ENOENT (No such file or directory)
 
     /**
      * onURIReturned
