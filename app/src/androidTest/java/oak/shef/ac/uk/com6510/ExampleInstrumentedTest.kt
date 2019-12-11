@@ -2,7 +2,7 @@
  * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
-package oak.shef.ac.uk.livedata
+package uk.ac.shef.oak.com6510
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
@@ -23,6 +23,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("oak.shef.ac.uk.myapplication", appContext.packageName)
+        assertEquals("uk.ac.shef.oak.myapplication", appContext.packageName)
     }
 }

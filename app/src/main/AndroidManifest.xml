@@ -5,7 +5,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="oak.shef.ac.uk.livedata">
+    package="uk.ac.shef.oak.com6510">
 
     <uses-feature android:name="android.hardware.camera"
         android:required="false" />
@@ -27,7 +27,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name="oak.shef.ac.uk.livedata.MyView">
+        <activity android:name="uk.ac.shef.oak.com6510.MyView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,11 +35,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ShowImageView"/>
+        <activity android:name="uk.ac.shef.oak.com6510.ShowImageView"/>
 
-        <activity android:name=".ShowImageActivity"/>
+        <activity android:name="uk.ac.shef.oak.com6510.ShowImageActivity"/>
 
-        <activity android:name="oak.shef.ac.uk.livedata.Maps">
+        <activity android:name="uk.ac.shef.oak.com6510.Maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
