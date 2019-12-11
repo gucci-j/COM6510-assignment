@@ -35,9 +35,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="uk.ac.shef.oak.com6510.ShowImageView"/>
+        <activity android:name="uk.ac.shef.oak.com6510.ShowImageView"
+            android:parentActivityName="uk.ac.shef.oak.com6510.MyView"/>
 
-        <activity android:name="uk.ac.shef.oak.com6510.ShowImageActivity"/>
+        <activity android:name="uk.ac.shef.oak.com6510.ShowImageActivity"
+            android:parentActivityName="uk.ac.shef.oak.com6510.ShowImageView"/>
 
         <activity android:name="uk.ac.shef.oak.com6510.Maps">
             <intent-filter>
