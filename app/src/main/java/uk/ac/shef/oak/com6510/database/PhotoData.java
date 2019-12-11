@@ -4,9 +4,13 @@
 
 package uk.ac.shef.oak.com6510.database;
 
+import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Entity for each photo
@@ -32,14 +36,16 @@ public class PhotoData {
     private Float pressureValue;
     private Float temperatureValue;
 
-    // Add here for GPS
-
-    public PhotoData(String filename, String time, Float pressureValue, Float temperatureValue) {
+    // GPS Data
+    private String GPSValue;
+    public PhotoData(String filename, String time, Float pressureValue, Float temperatureValue, String GPSValue) {
         this.filename = filename;
         //this.tripId = tripId;
         this.time = time;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;
+        this.GPSValue=GPSValue;
+
     }
 
     @NonNull
@@ -64,4 +70,6 @@ public class PhotoData {
     public Float getTemperatureValue() {
         return temperatureValue;
     }
+
+    public String getGPSValue(){return GPSValue;}
 }

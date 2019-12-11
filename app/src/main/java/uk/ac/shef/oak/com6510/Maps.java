@@ -11,15 +11,33 @@ package uk.ac.shef.oak.com6510;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -33,19 +51,49 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import uk.ac.shef.oak.com6510.database.PhotoData;
+import uk.ac.shef.oak.com6510.database.TripData;
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
+    private MyViewModel myViewModel;
     private GoogleMap mMap;
+    private List<LatLng> mLatLng;
+    private Polyline mPolyline;
+    private PolylineOptions mPolylineOptions;
     private static final int ACCESS_FINE_LOCATION = 123;
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapView mapView;
     private Button mButtonStart;
     private Button mButtonEnd;
+
+    // for taking & uploading a photo
+    private final static int RESULT_CAMERA = 1001;
+    private final static int REQUEST_PERMISSION = 1002;
+    private static final int READ_REQUEST_CODE = 42;
+    private Uri cameraURI;
+    private File cameraFILE;
+    private String timeStamp;
+    private boolean type;
+    private Barometer barometer;
+    private Thermometer thermometer;
+    private Float currentPressureValue;
+    private Float currentTemperatureValue;
+    private Location mCurrentLocation,mLastLocation;
+    private String mLastUpdateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,33 +104,146 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mButtonStart = (Button) findViewById(R.id.trackingStart);
-        mButtonStart.setOnClickListener(new View.OnClickListener() {
+        // Get a new or existing ViewModel from the ViewModelProvider.
+        myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
+        // Add an observer on the LiveData. The onChanged() method fires
+        // when the observed data changes and the activity is
+        // in the foreground.
+        myViewModel.getAllPhotos().observe(this, new Observer<List<PhotoData>>() {
             @Override
-            public void onClick(View v) {
-                startLocationUpdates();
-                if (mButtonEnd != null)
-                    mButtonEnd.setEnabled(true);
-                mButtonStart.setEnabled(false);
+            public void onChanged(@Nullable List<PhotoData> photoData) {
+                // Update view here
+                Toast.makeText(Maps.this, "onChanged(Photos)",
+                        Toast.LENGTH_SHORT).show();
             }
         });
-        mButtonStart.setEnabled(true);
+        myViewModel.getAllTrips().observe(this, new Observer<List<TripData>>() {
+            @Override
+            public void onChanged(@Nullable List<TripData> tripData) {
+                // Update view here
+                Toast.makeText(Maps.this, "onChanged(Trips)",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        mButtonEnd = (Button) findViewById(R.id.trackingEnd);
+        // Click 'stop' to stop tracking and then turn back to the MyView
+        mButtonEnd = (Button) findViewById(R.id.trackingStop);
         mButtonEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopLocationUpdates();
-                if (mButtonStart != null)
-                    mButtonStart.setEnabled(true);
-                mButtonEnd.setEnabled(false);
+                Intent intent = new Intent(Maps.this, MyView.class);
+                startActivity(intent);
             }
         });
-        mButtonEnd.setEnabled(false);
+
+        //for Barometer and Thermometer
+        barometer = new Barometer(this);
+        thermometer = new Thermometer(this);
+
+        // for taking a photo
+        if (checkCameraHardware(getApplicationContext()) == true) {
+            // A camera button will be visible
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
+            Log.i("debug/MyView", "Make the camera button visible");
+            if (fab.getVisibility() != View.VISIBLE) {
+                fab.setVisibility(View.VISIBLE);
+            }
+
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        type = true;
+                        checkPermission(type);
+                    }
+                    else {
+                        cameraIntent();
+                    }
+                }
+            });
+        }
+
+        // for uploading images from the gallery
+        // Ref: https://developer.android.com/guide/topics/providers/document-provider
+        FloatingActionButton fabGallery = (FloatingActionButton) findViewById(R.id.fab_gallery);
+        fabGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    type = false;
+                    checkPermission(type);
+                } else {
+                    uploadIntent();
+                }
+            }
+        });
 
     }
+    /**
+     * Check camera hardware
+     * Desc: This function checks whether a device has a camera or not.
+     * Ref: https://developer.android.com/guide/topics/media/camera
+     *      https://developer.android.com/training/camera/photobasics#java
+     * @param context
+     * @return true or false
+     */
+    private boolean checkCameraHardware(final Context context) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+            // this device has a camera
+            Log.i("debug/MyView", "checkCameraHardware: Has a camera");
+            return true;
+        } else {
+            // no camera on this device
+            Log.i("debug/MyView", "checkCameraHardware: No camera");
+            return false;
+        }
+    }
+    /**
+     * Check Permission
+     * Desc: This function is for checking permission to get photos.
+     * Ref: https://developer.android.com/guide/topics/permissions/overview
+     */
+    private void checkPermission(boolean flag){
+        Log.d("debug/MyView","checkPermission()");
+        // If already got permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            if (flag == true) {
+                cameraIntent();
+            } else {
+                uploadIntent();
+            }
 
+        }
+        // If permission is denied
+        else{
+            requestPermission();
+        }
+    }
+    /**
+     * Request permission
+     * Desc: This function requests permissions for storing images in external storage.
+     * Ref: https://developer.android.com/reference/android/support/v4/app/ActivityCompat.html#shouldShowRequestPermissionRationale(android.app.Activity,%20java.lang.String)
+     */
+    private void requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            ActivityCompat.requestPermissions(
+                    Maps.this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSION);
+        } else {
+            Toast toast = Toast.makeText(
+                    this,
+                    "Need permission for saving and uploading images!",
+                    Toast.LENGTH_SHORT);
+            toast.show();
 
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,},
+                    REQUEST_PERMISSION);
+        }
+    }
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
@@ -110,11 +271,50 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         }
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
     }
+    /**
+     * cameraIntent
+     * Desc: This is for creating an intent to take a photo.
+     * Ref: https://developer.android.com/training/camera/photobasics#TaskPath
+     */
+    private void cameraIntent(){
+        // designate an external storage folder
+        File saveFolder = getExternalFilesDir(Environment.DIRECTORY_DCIM);
+        // obtain a timestamp for a photo
+        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        // define file name
+        String fileName = String.format("COM6510_%s.jpg", timeStamp);
 
+        cameraFILE = new File(saveFolder, fileName);
+        cameraURI = FileProvider.getUriForFile(
+                Maps.this,
+                getApplicationContext().getPackageName() + ".fileprovider",
+                cameraFILE);
 
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraURI);
+        startActivityForResult(intent, RESULT_CAMERA);
+    }
+    /**
+     * uploadIntent
+     * Desc: This is for creating an intent to upload a photo from the gallery.
+     */
+    private void uploadIntent() {
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        // Filter to only show results that can be "opened", such as a
+        // file (as opposed to a list of contacts or timezones)
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers,
+        // it would be "*/*".
+        intent.setType("image/*");
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
     /**
      * it stops the location updates
      */
+
     private void stopLocationUpdates(){
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
@@ -132,11 +332,18 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         startLocationUpdates();
+        //for sensors restart
+        barometer.startSensingPressure();
+        thermometer.startSensingTemperature();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        barometer.stopBarometer();
+        thermometer.stopBarometer();
     }
 
 
-    private Location mCurrentLocation;
-    private String mLastUpdateTime;
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -147,11 +354,26 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             if (mMap != null)
                 mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                         .title(mLastUpdateTime));
+
+           // mLatLng.add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+            if(mLastLocation!=null) {
+                mPolyline = mMap.addPolyline(new PolylineOptions()
+                        .add(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                        .width(25)
+                        .color(Color.BLUE));
+            }
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 14.0f));
+            mLastLocation=mCurrentLocation;
         }
     };
 
-
+    /**
+     * onRequestPermissionsResult
+     * Desc: This function deals with the camera permission.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -173,7 +395,19 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 }
                 return;
             }
-
+            case REQUEST_PERMISSION: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (type == true) {
+                        cameraIntent();
+                    } else {
+                        uploadIntent();
+                    }
+                } else {
+                    Toast toast = Toast.makeText(this,
+                            "Need permission for saving images!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
             // other 'case' lines to check for other
             // permissions this app might request
         }
@@ -199,5 +433,85 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
 
+    }
+
+
+    /**
+     * onActivityResult
+     * Desc: This function is for adding images to the external storage
+     *       or uploading images from the gallery.
+     * Ref: https://stackoverflow.com/questions/50542966/permission-denial-accessing-picture-uri-on-app-restart
+     *      https://developer.android.com/guide/topics/providers/document-provider#permissions
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("debug/MyView","onActivityResult()");
+
+        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
+        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
+        // response to some other intent, and the code below shouldn't run at all.
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.
+            // Pull that URI using data.getData().
+            Uri uri = null;
+            if (data != null) {
+                Log.d("debug/MyView","Got data from the gallery");
+                uri = data.getData();
+                getContentResolver().takePersistableUriPermission(uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+                currentPressureValue =  barometer.getCurrentPressureValue();
+                currentTemperatureValue = thermometer.getCurrentTemperatureValue();
+                onURIReturned(uri, timeStamp);
+            }
+        }
+
+
+        // To save images
+        if (requestCode == RESULT_CAMERA) {
+            if(cameraURI != null && resultCode == RESULT_OK) {
+                Uri uri = registerExternalDatabase(cameraFILE);
+                currentPressureValue =  barometer.getCurrentPressureValue();
+                currentTemperatureValue = thermometer.getCurrentTemperatureValue();
+                Log.i("debug/MyView", "cameraURI: "+cameraURI);
+                onURIReturned(cameraURI, timeStamp);
+            }
+            else{
+                Log.d("debug/MyView","onActivityResult: cameraURI is null or cancelled.");
+            }
+        }
+    }
+    /**
+     * registerDatabase
+     * Desc: This function is for registering a photo to the external storage.
+     *       Not related to the room database!
+     * @param file
+     * @return uri Uri
+     */
+    private Uri registerExternalDatabase(File file) {
+        ContentValues contentValues = new ContentValues();
+        ContentResolver contentResolver = Maps.this.getContentResolver();
+        contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        contentValues.put("_data", file.getAbsolutePath());
+        Uri uri = contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        Log.i("debug/MyView", "registerExternalDatabase: "+uri);
+
+        return uri;
+    }
+    /**
+     * onURIReturned
+     * Desc: This is for registering the uri/timestamp/sensor data of a Photo to a photo database.
+     * @param uri
+     * @param timeStamp
+     */
+    private void onURIReturned(Uri uri, String timeStamp) {
+        myViewModel.insertPhoto(uri.toString(), timeStamp, currentPressureValue, currentTemperatureValue,mCurrentLocation.toString());
     }
 }

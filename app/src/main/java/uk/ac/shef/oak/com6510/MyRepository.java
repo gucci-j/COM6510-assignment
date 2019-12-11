@@ -63,7 +63,7 @@ class MyRepository extends ViewModel {
             // this can be extended with multiple images.
             mPhotoAsyncTaskDao.insert(photos[0]);
             Log.i("debug/MyRepository", "insertPhotoAsyncTask (photo registered): " +photos[0].getFilename()+ " " +
-                    photos[0].getTime() +" "+ photos[0].getPressureValue() +" "+ photos[0].getTemperatureValue());
+                    photos[0].getTime() +" "+ photos[0].getPressureValue() +" "+ photos[0].getTemperatureValue()+" "+photos[0].getGPSValue());
             return null;
         }
     }
