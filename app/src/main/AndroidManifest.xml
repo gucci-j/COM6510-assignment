@@ -44,14 +44,7 @@
         <activity android:name="uk.ac.shef.oak.com6510.StartTrackingView"
             android:parentActivityName="uk.ac.shef.oak.com6510.MyView"/>
 
-        <activity android:name="uk.ac.shef.oak.com6510.Maps">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+        <activity android:name="uk.ac.shef.oak.com6510.Maps"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

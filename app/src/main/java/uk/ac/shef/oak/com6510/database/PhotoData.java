@@ -4,18 +4,21 @@
 
 package uk.ac.shef.oak.com6510.database;
 
+import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Entity for each photo
  * Ref: https://developer.android.com/reference/android/arch/persistence/room/ForeignKey.html#childColumns()
  *      Lecture slide (Week 5 Persisting Data)
  */
-
 //@Entity(tableName = "photo_table")
 @Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"))
 public class PhotoData {
@@ -32,15 +35,16 @@ public class PhotoData {
     private Float pressureValue;
     private Float temperatureValue;
 
-    // Add here for GPS
+    // GPS Data
+    private String GPSValue;
 
-
-    public PhotoData(String filename, String time, Float pressureValue, Float temperatureValue) {
+    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, String GPSValue) {
         this.filename = filename;
-        // this.tripId = tripId;
+        this.tripId = tripId;
         this.time = time;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;
+        this.GPSValue = GPSValue;
     }
 
     @NonNull
@@ -48,11 +52,9 @@ public class PhotoData {
         return filename;
     }
 
-    /*
     public int getTripId() {
         return tripId;
     }
-    */
 
     public String getTime() {
         return time;
@@ -64,5 +66,9 @@ public class PhotoData {
 
     public Float getTemperatureValue() {
         return temperatureValue;
+    }
+
+    public String getGPSValue() {
+        return GPSValue;
     }
 }

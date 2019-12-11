@@ -41,13 +41,12 @@ public class StartTrackingView extends AppCompatActivity {
         myViewModel.getAllTrips().observe(StartTrackingView.this, new Observer<List<TripData>>() {
             @Override
             public void onChanged(@Nullable List<TripData> tripData) {
-                int trip_id;
+
                 for (TripData trip: tripData) {
                     if (trip.getTitle().equals(title) && trip.getDate().equals(timeStamp)) {
-                        trip_id = trip.getId();
                         Log.i("debug", "id: "+ trip.getId()+ " title: "+trip.getTitle()+ " date: "+trip.getDate());
                         Intent intent = new Intent(StartTrackingView.this, Maps.class);
-                        intent.putExtra("TRIP_ID", trip_id);
+                        intent.putExtra("EXTRA_TRIP_ID", trip.getId());
                         startActivity(intent);
                     } else {
                         Log.i("debug", "(MISMATCHED) id: "+ trip.getId()+ " title: "+trip.getTitle()+" date: "+trip.getDate());
