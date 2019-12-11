@@ -5,7 +5,9 @@
 package uk.ac.shef.oak.com6510.database;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 /**
@@ -13,18 +15,16 @@ import androidx.room.PrimaryKey;
  * Ref: https://developer.android.com/reference/android/arch/persistence/room/ForeignKey.html#childColumns()
  *      Lecture slide (Week 5 Persisting Data)
  */
-// @Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"))
 
-@Entity(tableName = "photo_table")
+//@Entity(tableName = "photo_table")
+@Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"))
 public class PhotoData {
     @PrimaryKey
     @NonNull
     private String filename; // Filename for the photo: Uri
 
-    /*
     @ColumnInfo(name = "trip_id")
     private int tripId; // Id from TripData
-     */
 
     private String time; // The time when a photo was taken
 
@@ -34,9 +34,10 @@ public class PhotoData {
 
     // Add here for GPS
 
+
     public PhotoData(String filename, String time, Float pressureValue, Float temperatureValue) {
         this.filename = filename;
-        //this.tripId = tripId;
+        // this.tripId = tripId;
         this.time = time;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;

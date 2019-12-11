@@ -79,7 +79,8 @@ class MyRepository extends ViewModel {
         new insertTripAsyncTask(mTripDBDao).execute(trip);
     }
 
-    private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Void> {
+    // AsyncTask<Params, Progress, Result>
+    private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Long> {
         // We need this because the class is static and cannot access to the repository.
         private TripDAO mTripAsyncTaskDao;
 
@@ -88,11 +89,11 @@ class MyRepository extends ViewModel {
         }
 
         @Override
-        protected Void doInBackground(TripData... trips) {
-            mTripAsyncTaskDao.insert(trips[0]);
-            Log.i("debug/MyRepository", "insertTripAsyncTask (trip registered): " +trips[0].getId()+ " " +
-                    trips[0].getTitle()+ " " +trips[0].getDate());
-            return null;
+        protected Long doInBackground(TripData... trips) {
+            long trip_id = mTripAsyncTaskDao.insert(trips[0]);
+            Log.i("debug/MyRepository", "insertTripAsyncTask (trip registered): "+
+                    trip_id+ " " + trips[0].getTitle()+ " " +trips[0].getDate());
+            return trip_id;
         }
     }
 

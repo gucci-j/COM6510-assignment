@@ -8,6 +8,7 @@ package uk.ac.shef.oak.com6510;
 import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
     private LiveData<List<TripData>> allTrips;
     private LiveData<List<PhotoData>> allPhotos;
+    LiveData<TripData> newTrip;
 
     public MyViewModel (Application application) {
         super(application);
@@ -39,6 +41,12 @@ public class MyViewModel extends AndroidViewModel {
         mRepository.insertPhoto(new PhotoData(uri, timeStamp, pressureValue, temperatureValue));
     }
 
+    /**
+     * insertTrip
+     * Desc: make a new TripData entry and register it to the database.
+     * @param tripTitle
+     * @param timeStamp
+     */
     public void insertTrip(String tripTitle, String timeStamp) {
         mRepository.insertTrip(new TripData(tripTitle, timeStamp));
     }

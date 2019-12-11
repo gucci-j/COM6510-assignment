@@ -18,7 +18,7 @@ import java.util.List;
 @Dao
 public interface TripDAO {
     @Insert
-    void insert(TripData tripData);
+    long insert(TripData tripData);
 
     @Query("SELECT * from trip_table ORDER BY id DESC")
     LiveData<List<TripData>> getAllTrips();
