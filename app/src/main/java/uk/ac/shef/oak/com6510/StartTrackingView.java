@@ -23,35 +23,37 @@ import java.util.Locale;
 
 import uk.ac.shef.oak.com6510.database.TripData;
 
-public class StartTrackingView extends AppCompatActivity {
+public class StartTrackingView extends AppCompatActivity implements QueryCallback {
+
     private MyViewModel myViewModel;
     private String title;
     private String timeStamp;
+
+    private QueryCallback callback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_tracking);
+        callback = StartTrackingView.this;
 
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
 
         // Here we can proceed to the next activity.
-        // Some parts of the code should be in viewmodel or repo.
         myViewModel.getAllTrips().observe(StartTrackingView.this, new Observer<List<TripData>>() {
             @Override
             public void onChanged(@Nullable List<TripData> tripData) {
-
-                for (TripData trip: tripData) {
-                    if (trip.getTitle().equals(title) && trip.getDate().equals(timeStamp)) {
-                        Log.i("debug", "id: "+ trip.getId()+ " title: "+trip.getTitle()+ " date: "+trip.getDate());
-                        Intent intent = new Intent(StartTrackingView.this, Maps.class);
-                        intent.putExtra("EXTRA_TRIP_ID", trip.getId());
-                        startActivity(intent);
-                    } else {
-                        Log.i("debug", "(MISMATCHED) id: "+ trip.getId()+ " title: "+trip.getTitle()+" date: "+trip.getDate());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TripData trip = myViewModel.getTrip(title, timeStamp);
+                        if (trip != null) {
+                            Log.i("debug/StartTrackingView", "id: "+ trip.getId()+ " title: "+trip.getTitle()+ " date: "+trip.getDate());
+                            callback.onRetrieveFinished(trip.getId());
+                        }
                     }
-                }
+                }).start();
             }
         });
 
@@ -71,5 +73,14 @@ public class StartTrackingView extends AppCompatActivity {
                 myViewModel.insertTrip(title, timeStamp);
             }
         });
+    }
+
+    @Override
+    public void onRetrieveFinished(int id) {
+        if (id != -1) {
+            Intent intent = new Intent(StartTrackingView.this, Maps.class);
+            intent.putExtra("EXTRA_TRIP_ID", id);
+            startActivity(intent);
+        }
     }
 }

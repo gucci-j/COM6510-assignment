@@ -56,8 +56,8 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<List<TripData>> getAllTrips() {
         return allTrips;
     }
-
     public LiveData<List<PhotoData>> getAllPhotos() {
         return allPhotos;
     }
+    public TripData getTrip(String title, String id) {return mRepository.getTrip(title, id); }
 }

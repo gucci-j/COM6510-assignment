@@ -23,6 +23,9 @@ public interface TripDAO {
     @Query("SELECT * from trip_table ORDER BY id DESC")
     LiveData<List<TripData>> getAllTrips();
 
+    @Query("SELECT * from trip_table WHERE title = :titleTrip AND date = :dateTrip LIMIT 1")
+    TripData getTrip(String titleTrip, String dateTrip);
+
     // Can add delete and update?
 
     /*
