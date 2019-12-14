@@ -20,6 +20,7 @@ import uk.ac.shef.oak.com6510.database.TripData;
 
 public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
     private List<TripData> paths = new ArrayList<>();
+    private OnItemClickListener listener;
 
     // single data design
     @NonNull
@@ -56,6 +57,24 @@ public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.text_path_title);
             textViewDate = itemView.findViewById(R.id.text_path_date);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(paths.get(position));
+                    }
+                }
+            });
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(TripData data);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 }

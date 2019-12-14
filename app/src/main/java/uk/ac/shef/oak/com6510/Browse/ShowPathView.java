@@ -47,6 +47,16 @@ public class ShowPathView extends AppCompatActivity {
                 adapter.setPaths(tripData);
             }
         });
+
+        adapter.setOnItemClickListener(new PathAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(TripData data) {
+                Intent intent = new Intent(ShowPathView.this, ShowImageByPathView.class);
+                intent.putExtra("EXTRA_ID", data.getId());
+                intent.putExtra("EXTRA_TITLE", data.getTitle());
+                startActivity(intent);
+            }
+        });
     }
 
 

@@ -6,17 +6,15 @@ package uk.ac.shef.oak.com6510;
 
 
 import android.app.Application;
-import android.location.Location;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
@@ -60,4 +58,8 @@ public class MyViewModel extends AndroidViewModel {
         return allPhotos;
     }
     public TripData getTrip(String title, String id) {return mRepository.getTrip(title, id); }
+
+    public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
+        mRepository.getPhotosByTripId(id, callback);
+    }
 }

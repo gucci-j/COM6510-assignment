@@ -40,7 +40,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
     public View_Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //Inflate the layout, initialize the View Holder
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_image, parent, false);
+                .inflate(R.layout.content_browse, parent, false);
         View_Holder holder = new View_Holder(v);
         return holder;
     }
@@ -110,6 +110,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
             Log.i("debug", "setPhotos: Error");
             e.printStackTrace();
         } finally {
+            Log.i("debug", "setPhotos: finally");
             this.items = temp;
         }
     }

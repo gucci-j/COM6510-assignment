@@ -33,7 +33,7 @@ public class ShowImageView extends AppCompatActivity {
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
 
         // Set up the RecyclerView
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler);
         int numberOfColumns = 4;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
