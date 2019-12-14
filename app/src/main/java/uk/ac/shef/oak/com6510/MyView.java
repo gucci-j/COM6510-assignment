@@ -11,6 +11,9 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import uk.ac.shef.oak.com6510.Browse.ShowImageView;
+import uk.ac.shef.oak.com6510.Browse.ShowPathView;
+
 public class MyView extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +38,16 @@ public class MyView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MyView.this, ShowImageView.class);
+                startActivity(intent);
+            }
+        });
+
+        // for browsing path
+        Button buttonBrowsePath = findViewById(R.id.browsing_path);
+        buttonBrowsePath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MyView.this, ShowPathView.class);
                 startActivity(intent);
             }
         });

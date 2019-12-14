@@ -2,7 +2,7 @@
  * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
-package uk.ac.shef.oak.com6510;
+package uk.ac.shef.oak.com6510.Browse;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 
 

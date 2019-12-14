@@ -85,7 +85,6 @@ class MyRepository extends ViewModel {
     private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Long> {
         // We need this because the class is static and cannot access to the repository.
         private TripDAO mTripAsyncTaskDao;
-        public AsyncResponse aRes = null;
 
         private insertTripAsyncTask(TripDAO mTripAsyncTaskDao) {
             this.mTripAsyncTaskDao = mTripAsyncTaskDao;
