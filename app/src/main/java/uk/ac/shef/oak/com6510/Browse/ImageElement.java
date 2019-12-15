@@ -14,10 +14,6 @@ public class ImageElement implements Serializable {
     Bitmap file = null;
     Uri uri = null;
 
-    public ImageElement(int image) {
-        this.image = image;
-    }
-
     public ImageElement(Bitmap fileX, Uri uriX) {
         file = fileX;
         uri = uriX;

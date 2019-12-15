@@ -11,6 +11,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import uk.ac.shef.oak.com6510.Browse.ShowImageSortedByPathView;
 import uk.ac.shef.oak.com6510.Browse.ShowImageView;
 import uk.ac.shef.oak.com6510.Browse.ShowPathView;
 
@@ -31,7 +32,6 @@ public class MyView extends AppCompatActivity {
             }
         });
 
-
         // for browsing
         Button buttonBrowse = findViewById(R.id.browsing);
         buttonBrowse.setOnClickListener(new View.OnClickListener() {
@@ -48,6 +48,16 @@ public class MyView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MyView.this, ShowPathView.class);
+                startActivity(intent);
+            }
+        });
+
+        // for browsing sorted by path
+        Button buttonBrowseSortedByPath = findViewById(R.id.browsing_sortedbypath);
+        buttonBrowseSortedByPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MyView.this, ShowImageSortedByPathView.class);
                 startActivity(intent);
             }
         });

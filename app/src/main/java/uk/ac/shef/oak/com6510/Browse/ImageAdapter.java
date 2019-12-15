@@ -32,7 +32,7 @@ import uk.ac.shef.oak.com6510.database.PhotoData;
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder> {
     // needs variables for the data
     static private Context context;
-    private static List<ImageElement> items = new ArrayList<>();
+    private List<ImageElement> items;
 
 
     // single data design
@@ -57,6 +57,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
             if (items.get(position).image != -1) {
                 holder.imageView.setImageResource(items.get(position).image);
             } else if (items.get(position).file != null) {
+                Log.i("debug", "onBindViewHolder: items.get(position).file != null");
                 holder.imageView.setImageBitmap(items.get(position).file);
             }
 
@@ -64,8 +65,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                 @Override
                 public void onClick(View v) {
                     Log.i("debug", "ImageAdapter: onClick()");
-                    Intent intent = new Intent(context, ShowImageActivity.class);
+                    Intent intent = new Intent(context, ShowImageDetailsActivity.class);
                     intent.putExtra("position", position);
+                    intent.putExtra("uri", items.get(position).uri.toString());
                     context.startActivity(intent);
                 }
             });
@@ -127,6 +129,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
 
 
     public ImageAdapter(Context cont) {
+        this.items = new ArrayList<>();
         this.context = cont;
     }
 
@@ -144,7 +147,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
         return items.get(id);
     }
 
+    /*
     public static List<ImageElement> getItems() {
         return items;
     }
+
+     */
 }

@@ -12,9 +12,11 @@ import androidx.lifecycle.LiveData;
 
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.Browse.ImageAdapter;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
@@ -61,5 +63,9 @@ public class MyViewModel extends AndroidViewModel {
 
     public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
         mRepository.getPhotosByTripId(id, callback);
+    }
+
+    public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
+        mRepository.getPhotosByTripIdWAdapter(id, callback, adapter);
     }
 }
