@@ -184,7 +184,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                displayPhotoLocation();
                 if (Build.VERSION.SDK_INT >= 23) {
                     type = false;
                     checkPermission(type);
@@ -308,6 +307,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraURI);
         startActivityForResult(intent, RESULT_CAMERA);
+
     }
     /**
      * uploadIntent
