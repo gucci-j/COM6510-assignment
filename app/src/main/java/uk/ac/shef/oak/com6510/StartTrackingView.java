@@ -23,14 +23,15 @@ import java.util.List;
 import java.util.Locale;
 
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetTripIDCallback;
 
-public class StartTrackingView extends AppCompatActivity implements QueryCallback {
+public class StartTrackingView extends AppCompatActivity implements QueryGetTripIDCallback {
 
     private MyViewModel myViewModel;
     private String title;
     private String timeStamp;
 
-    private QueryCallback callback;
+    private QueryGetTripIDCallback callback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

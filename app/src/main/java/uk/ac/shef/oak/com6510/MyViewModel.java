@@ -16,8 +16,11 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.Browse.ImageAdapter;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
@@ -41,7 +44,7 @@ public class MyViewModel extends AndroidViewModel {
      * @param temperatureValue
      */
     public void insertPhoto(String uri, int tripID, String timeStamp, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
-        mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSLatitude,GPSLongitude));
+        mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSLatitude, GPSLongitude));
     }
 
     /**
@@ -61,4 +64,12 @@ public class MyViewModel extends AndroidViewModel {
         return allPhotos;
     }
     public TripData getTrip(String title, String id) {return mRepository.getTrip(title, id); }
+
+    public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
+        mRepository.getPhotosByTripId(id, callback);
+    }
+
+    public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
+        mRepository.getPhotosByTripIdWAdapter(id, callback, adapter);
+    }
 }

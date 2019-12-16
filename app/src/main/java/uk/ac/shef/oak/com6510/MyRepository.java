@@ -13,11 +13,14 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.Browse.ImageAdapter;
 import uk.ac.shef.oak.com6510.database.MyRoomDatabase;
 import uk.ac.shef.oak.com6510.database.PhotoDAO;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripDAO;
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
 
 
 class MyRepository extends ViewModel {
@@ -85,7 +88,6 @@ class MyRepository extends ViewModel {
     private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Long> {
         // We need this because the class is static and cannot access to the repository.
         private TripDAO mTripAsyncTaskDao;
-        public AsyncResponse aRes = null;
 
         private insertTripAsyncTask(TripDAO mTripAsyncTaskDao) {
             this.mTripAsyncTaskDao = mTripAsyncTaskDao;
@@ -116,5 +118,64 @@ class MyRepository extends ViewModel {
     }
     public TripData getTrip(String title, String date) {
         return mTripDBDao.getTrip(title, date);
+    }
+
+
+    public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
+        new getPhotosByTripIdAsyncTask(mPhotoDBDao, callback).execute(id);
+    }
+
+    private static class getPhotosByTripIdAsyncTask extends AsyncTask<Integer, Void, List<PhotoData>> {
+        // We need this because the class is static and cannot access to the repository.
+        private PhotoDAO mPhotoAsyncTaskDao;
+        private QueryGetPhotosByTripIDCallback callback;
+
+        private getPhotosByTripIdAsyncTask(PhotoDAO mPhotoAsyncTaskDao, QueryGetPhotosByTripIDCallback callback) {
+            this.mPhotoAsyncTaskDao = mPhotoAsyncTaskDao;
+            this.callback = callback;
+        }
+
+        @Override
+        protected List<PhotoData> doInBackground(Integer... tripId) {
+            List<PhotoData> data = mPhotoAsyncTaskDao.getTripPhotosASync(tripId[0]);
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(List<PhotoData> data) {
+            // notify to the UI
+            callback.onRetrieveFinished(data);
+        }
+    }
+
+    public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
+        new getPhotosByTripIdWAdapterAsyncTask(mPhotoDBDao, callback, adapter).execute(id);
+    }
+
+    private static class getPhotosByTripIdWAdapterAsyncTask extends AsyncTask<Integer, Void, List<PhotoData>> {
+        // We need this because the class is static and cannot access to the repository.
+        private PhotoDAO mPhotoAsyncTaskDao;
+        private QueryGetPhotosByTripIDWAdapterCallback callback;
+        private ImageAdapter adapter;
+
+        private getPhotosByTripIdWAdapterAsyncTask(PhotoDAO mPhotoAsyncTaskDao,
+                                           QueryGetPhotosByTripIDWAdapterCallback callback,
+                                           ImageAdapter adapter) {
+            this.mPhotoAsyncTaskDao = mPhotoAsyncTaskDao;
+            this.callback = callback;
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected List<PhotoData> doInBackground(Integer... tripId) {
+            List<PhotoData> data = mPhotoAsyncTaskDao.getTripPhotosASync(tripId[0]);
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(List<PhotoData> data) {
+            // notify to the UI
+            callback.onRetrieveFinished(data, adapter);
+        }
     }
 }

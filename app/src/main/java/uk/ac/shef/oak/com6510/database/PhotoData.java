@@ -41,17 +41,15 @@ public class PhotoData {
     // GPS Data
     private double GPSLatitude;
     private double GPSLongitude;
-
-    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude,double GPSLongitude) {
+  
+    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
         this.filename = filename;
         this.tripId = tripId;
         this.time = time;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;
         this.GPSLatitude = GPSLatitude;
-        this.GPSLongitude=GPSLongitude;
-
-
+        this.GPSLongitude = GPSLongitude;
     }
 
     @NonNull
@@ -77,5 +75,4 @@ public class PhotoData {
 
     public double getGPSLatitude() { return GPSLatitude; }
     public double getGPSLongitude() { return GPSLongitude; }
-
 }

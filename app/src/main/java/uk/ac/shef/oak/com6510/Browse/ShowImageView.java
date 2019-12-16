@@ -2,7 +2,7 @@
  * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
-package uk.ac.shef.oak.com6510;
+package uk.ac.shef.oak.com6510.Browse;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.MyViewModel;
+import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 
 public class ShowImageView extends AppCompatActivity {
@@ -31,7 +33,7 @@ public class ShowImageView extends AppCompatActivity {
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
 
         // Set up the RecyclerView
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.grid_recycler);
         int numberOfColumns = 4;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 

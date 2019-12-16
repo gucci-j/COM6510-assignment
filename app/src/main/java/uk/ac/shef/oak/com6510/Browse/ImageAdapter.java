@@ -2,7 +2,7 @@
  * Copyright (c) 2019. This code has been developed by Atsuki Yamaguchi, Mingshuo Zhang, and Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
  */
 
-package uk.ac.shef.oak.com6510;
+package uk.ac.shef.oak.com6510.Browse;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,13 +25,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder> {
     // needs variables for the data
     static private Context context;
-    private static List<ImageElement> items = new ArrayList<>();
+    private List<ImageElement> items;
 
 
     // single data design
@@ -39,7 +40,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
     public View_Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //Inflate the layout, initialize the View Holder
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_image, parent, false);
+                .inflate(R.layout.content_browse, parent, false);
         View_Holder holder = new View_Holder(v);
         return holder;
     }
@@ -56,6 +57,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
             if (items.get(position).image != -1) {
                 holder.imageView.setImageResource(items.get(position).image);
             } else if (items.get(position).file != null) {
+                Log.i("debug", "onBindViewHolder: items.get(position).file != null");
                 holder.imageView.setImageBitmap(items.get(position).file);
             }
 
@@ -63,8 +65,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                 @Override
                 public void onClick(View v) {
                     Log.i("debug", "ImageAdapter: onClick()");
-                    Intent intent = new Intent(context, ShowImageActivity.class);
+                    Intent intent = new Intent(context, ShowImageDetailsActivity.class);
                     intent.putExtra("position", position);
+                    intent.putExtra("uri", items.get(position).uri.toString());
                     context.startActivity(intent);
                 }
             });
@@ -109,6 +112,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
             Log.i("debug", "setPhotos: Error");
             e.printStackTrace();
         } finally {
+            Log.i("debug", "setPhotos: finally");
             this.items = temp;
         }
     }
@@ -125,6 +129,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
 
 
     public ImageAdapter(Context cont) {
+        this.items = new ArrayList<>();
         this.context = cont;
     }
 
@@ -142,7 +147,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
         return items.get(id);
     }
 
+    /*
     public static List<ImageElement> getItems() {
         return items;
     }
+
+     */
 }

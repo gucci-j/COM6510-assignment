@@ -115,9 +115,10 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapView=mapFragment.getView();
+        mapView = mapFragment.getView();
         mapFragment.getMapAsync(this);
         mapFragment.getView();
+      
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
         // Add an observer on the LiveData. The onChanged() method fires
@@ -285,6 +286,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         }
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
     }
+  
     /**
      * cameraIntent
      * Desc: This is for creating an intent to take a photo.
@@ -367,17 +369,18 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             Log.i("MAP", "new location " + mCurrentLocation.toString());
           //  pathLatitude.add(mCurrentLocation.getLatitude());
           //  pathLongitude.add(mCurrentLocation.getLongitude());
-            if(mCurrentLocationMarker!=null){mCurrentLocationMarker.remove();}
+
+            if(mCurrentLocationMarker != null){ mCurrentLocationMarker.remove();}
             if (mMap != null) {
-                mCurrentLocationMarker=mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                mCurrentLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                         .title("Current Position")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 // Move the camera to the current location at the start time
                 if(mMap.getCameraPosition().zoom>14.0f) {
-                    currentZoomLevel=mMap.getCameraPosition().zoom;
+                    currentZoomLevel = mMap.getCameraPosition().zoom;
                     moveCameraToCurrentLocation(currentZoomLevel);
                 }else{
-                    currentZoomLevel=14.0f;
+                    currentZoomLevel = 14.0f;
                     moveCameraToCurrentLocation(currentZoomLevel);
                 }
             }
@@ -406,12 +409,11 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 moveCameraToCurrentLocation(currentZoomLevel);
 
             }
-            mLastLocation=mCurrentLocation;
-        }
-    };
+
     private void moveCameraToCurrentLocation(Float currentZoomLevel){
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), currentZoomLevel));
     }
+
     /**
      * onRequestPermissionsResult
      * Desc: This function deals with the camera permission.
@@ -579,6 +581,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         myViewModel.insertPhoto(uri.toString(), tripId, timeStamp, currentPressureValue, currentTemperatureValue, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
 
     }
+
     private void displayPhotoLocation(){
         // update the location of this photo
         if (mMap != null)

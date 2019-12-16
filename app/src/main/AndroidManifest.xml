@@ -35,16 +35,22 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="uk.ac.shef.oak.com6510.ShowImageView"
+        <activity android:name="uk.ac.shef.oak.com6510.Browse.ShowImageView"
             android:parentActivityName="uk.ac.shef.oak.com6510.MyView"/>
 
-        <activity android:name="uk.ac.shef.oak.com6510.ShowImageActivity"
-            android:parentActivityName="uk.ac.shef.oak.com6510.ShowImageView"/>
+        <activity android:name="uk.ac.shef.oak.com6510.Browse.ShowImageDetailsActivity"/>
 
         <activity android:name="uk.ac.shef.oak.com6510.StartTrackingView"
             android:parentActivityName="uk.ac.shef.oak.com6510.MyView"/>
 
         <activity android:name="uk.ac.shef.oak.com6510.Maps"/>
+
+        <activity android:name="uk.ac.shef.oak.com6510.Browse.ShowPathView"
+            android:parentActivityName="uk.ac.shef.oak.com6510.MyView"/>
+
+        <activity android:name="uk.ac.shef.oak.com6510.Browse.ShowImageByPathView"
+            android:parentActivityName="uk.ac.shef.oak.com6510.Browse.ShowPathView"/>
+        <activity android:name=".Browse.ShowImageSortedByPathView" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
