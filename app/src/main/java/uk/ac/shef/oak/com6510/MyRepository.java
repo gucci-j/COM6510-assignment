@@ -23,6 +23,8 @@ import uk.ac.shef.oak.com6510.database.TripData;
 class MyRepository extends ViewModel {
     private final TripDAO mTripDBDao;
     private final PhotoDAO mPhotoDBDao;
+    private MyRoomDatabase db;
+
     // for storing all trips
     private LiveData<List<TripData>> allTrips;
     // for storing all photos
@@ -30,7 +32,7 @@ class MyRepository extends ViewModel {
 
 
     public MyRepository(Application application) {
-        MyRoomDatabase db = MyRoomDatabase.getDatabase(application);
+        db = MyRoomDatabase.getDatabase(application);
         mTripDBDao = db.tripDao();
         mPhotoDBDao = db.photoDao();
         allTrips = mTripDBDao.getAllTrips();
@@ -63,7 +65,7 @@ class MyRepository extends ViewModel {
             // this can be extended with multiple images.
             mPhotoAsyncTaskDao.insert(photos[0]);
             Log.i("debug/MyRepository", "insertPhotoAsyncTask (photo registered): " +photos[0].getFilename()+ " " +
-                    photos[0].getTime() +" "+ photos[0].getPressureValue() +" "+ photos[0].getTemperatureValue());
+                    photos[0].getTime() +" "+ photos[0].getPressureValue() +" "+ photos[0].getTemperatureValue()+" "+photos[0].getGPSLatitude()+" "+photos[0].getGPSLongitude());
             return null;
         }
     }
@@ -79,21 +81,30 @@ class MyRepository extends ViewModel {
         new insertTripAsyncTask(mTripDBDao).execute(trip);
     }
 
-    private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Void> {
+    // AsyncTask<Params, Progress, Result>
+    private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Long> {
         // We need this because the class is static and cannot access to the repository.
         private TripDAO mTripAsyncTaskDao;
+        public AsyncResponse aRes = null;
 
         private insertTripAsyncTask(TripDAO mTripAsyncTaskDao) {
             this.mTripAsyncTaskDao = mTripAsyncTaskDao;
         }
 
         @Override
-        protected Void doInBackground(TripData... trips) {
-            mTripAsyncTaskDao.insert(trips[0]);
-            Log.i("debug/MyRepository", "insertTripAsyncTask (trip registered): " +trips[0].getId()+ " " +
-                    trips[0].getTitle()+ " " +trips[0].getDate());
-            return null;
+        protected Long doInBackground(TripData... trips) {
+            long trip_id = mTripAsyncTaskDao.insert(trips[0]);
+            Log.i("debug/MyRepository", "insertTripAsyncTask (trip registered): "+
+                    trip_id + " " + trips[0].getTitle()+ " " +trips[0].getDate());
+            return trip_id;
         }
+
+        /*
+        @Override
+        protected void onPostExecute(Long result) {
+            aRes.processFinish((int)(long) result);
+        }
+         */
     }
 
     // Add delete and update if possible here!
@@ -102,5 +113,8 @@ class MyRepository extends ViewModel {
     }
     public LiveData<List<PhotoData>> getAllPhotos() {
         return allPhotos;
+    }
+    public TripData getTrip(String title, String date) {
+        return mTripDBDao.getTrip(title, date);
     }
 }

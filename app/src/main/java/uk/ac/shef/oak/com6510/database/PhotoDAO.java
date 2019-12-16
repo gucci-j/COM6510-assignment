@@ -29,5 +29,11 @@ public interface PhotoDAO {
     @Query("SELECT * from photo_table ORDER BY time DESC")
     LiveData<List<PhotoData>> getAllPhotos();
 
+    @Query("SELECT * from photo_table WHERE trip_id = :tripId")
+    LiveData<List<PhotoData>> getTripPhotos(int tripId);
+
+    @Query("SELECT * from photo_table WHERE trip_id = :tripId")
+    List<PhotoData> getTripPhotosSync(int tripId);
+
     // Delete, Edit, Retrieve group by
 }

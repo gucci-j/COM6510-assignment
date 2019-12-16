@@ -6,9 +6,14 @@ package uk.ac.shef.oak.com6510;
 
 
 import android.app.Application;
+import android.location.Location;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.shef.oak.com6510.database.PhotoData;
@@ -35,10 +40,16 @@ public class MyViewModel extends AndroidViewModel {
      * @param pressureValue
      * @param temperatureValue
      */
-    public void insertPhoto(String uri, String timeStamp, Float pressureValue, Float temperatureValue) {
-        mRepository.insertPhoto(new PhotoData(uri, timeStamp, pressureValue, temperatureValue));
+    public void insertPhoto(String uri, int tripID, String timeStamp, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
+        mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSLatitude,GPSLongitude));
     }
 
+    /**
+     * insertTrip
+     * Desc: make a new TripData entry and register it to the database.
+     * @param tripTitle
+     * @param timeStamp
+     */
     public void insertTrip(String tripTitle, String timeStamp) {
         mRepository.insertTrip(new TripData(tripTitle, timeStamp));
     }
@@ -46,8 +57,8 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<List<TripData>> getAllTrips() {
         return allTrips;
     }
-
     public LiveData<List<PhotoData>> getAllPhotos() {
         return allPhotos;
     }
+    public TripData getTrip(String title, String id) {return mRepository.getTrip(title, id); }
 }

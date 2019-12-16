@@ -11,7 +11,8 @@ apply plugin: 'kotlin-android-extensions'
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/Atsuki/Google Drive/lecture/software_dev/COM6510-assignment/keyStore.jks')
+            storeFile file('U:\\COMP6510 Software mobile\\COM6510-assignment-master\\keyStore.jks')
+            //storeFile file('/Users/Atsuki/Google Drive/lecture/software_dev/COM6510-assignment/keyStore.jks')
             storePassword 'com4510iscool'
             keyAlias = 'com4510'
             keyPassword 'com4510iscool'
