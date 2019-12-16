@@ -367,32 +367,34 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             mCurrentLocation = locationResult.getLastLocation();
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
             Log.i("MAP", "new location " + mCurrentLocation.toString());
-          //  pathLatitude.add(mCurrentLocation.getLatitude());
-          //  pathLongitude.add(mCurrentLocation.getLongitude());
+            //  pathLatitude.add(mCurrentLocation.getLatitude());
+            //  pathLongitude.add(mCurrentLocation.getLongitude());
 
-            if(mCurrentLocationMarker != null){ mCurrentLocationMarker.remove();}
+            if (mCurrentLocationMarker != null) {
+                mCurrentLocationMarker.remove();
+            }
             if (mMap != null) {
                 mCurrentLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                         .title("Current Position")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 // Move the camera to the current location at the start time
-                if(mMap.getCameraPosition().zoom>14.0f) {
+                if (mMap.getCameraPosition().zoom > 14.0f) {
                     currentZoomLevel = mMap.getCameraPosition().zoom;
                     moveCameraToCurrentLocation(currentZoomLevel);
-                }else{
+                } else {
                     currentZoomLevel = 14.0f;
                     moveCameraToCurrentLocation(currentZoomLevel);
                 }
             }
 
-            if(mLastLocation!=null) {
+            if (mLastLocation != null) {
                 // Add the polyline if the location is not just start
                 mPolyline = mMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                         .width(12)
                         .color(Color.BLUE));
 
-            }else{
+            } else {
                 CircleOptions circleOptions = new CircleOptions();
                 // Specifying the center of the circle
                 circleOptions.center(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
@@ -409,6 +411,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 moveCameraToCurrentLocation(currentZoomLevel);
 
             }
+        }
+    };
 
     private void moveCameraToCurrentLocation(Float currentZoomLevel){
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), currentZoomLevel));
