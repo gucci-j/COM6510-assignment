@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,10 +68,16 @@ public class StartTrackingView extends AppCompatActivity implements QueryCallbac
             public void onClick(View view) {
                 // obtain a title
                 title = tripTitle.getText().toString();
-                // obtain a timestamp for a trip
-                timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-                // register a new trip
-                myViewModel.insertTrip(title, timeStamp);
+                if(title != null && !title.isEmpty() && !title.trim().isEmpty()) {
+                    // obtain a timestamp for a trip
+                    timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+                    // register a new trip
+                    myViewModel.insertTrip(title, timeStamp);
+                }else {
+                    Toast.makeText(StartTrackingView.this, "The title cannot be empty or white space.",
+                            Toast.LENGTH_LONG).show();
+                    tripTitle.setText(null);
+                }
             }
         });
     }

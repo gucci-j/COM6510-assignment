@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.shef.oak.com6510.database.PhotoData;
@@ -39,8 +40,8 @@ public class MyViewModel extends AndroidViewModel {
      * @param pressureValue
      * @param temperatureValue
      */
-    public void insertPhoto(String uri, int tripID, String timeStamp, Float pressureValue, Float temperatureValue, String GPSValue) {
-        mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSValue));
+    public void insertPhoto(String uri, int tripID, String timeStamp, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
+        mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSLatitude,GPSLongitude));
     }
 
     /**

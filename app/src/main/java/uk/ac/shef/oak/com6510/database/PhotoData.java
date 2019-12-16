@@ -13,6 +13,9 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+
+import java.util.ArrayList;
 
 /**
  * Entity for each photo
@@ -36,15 +39,19 @@ public class PhotoData {
     private Float temperatureValue;
 
     // GPS Data
-    private String GPSValue;
+    private double GPSLatitude;
+    private double GPSLongitude;
 
-    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, String GPSValue) {
+    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude,double GPSLongitude) {
         this.filename = filename;
         this.tripId = tripId;
         this.time = time;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;
-        this.GPSValue = GPSValue;
+        this.GPSLatitude = GPSLatitude;
+        this.GPSLongitude=GPSLongitude;
+
+
     }
 
     @NonNull
@@ -68,7 +75,7 @@ public class PhotoData {
         return temperatureValue;
     }
 
-    public String getGPSValue() {
-        return GPSValue;
-    }
+    public double getGPSLatitude() { return GPSLatitude; }
+    public double getGPSLongitude() { return GPSLongitude; }
+
 }
