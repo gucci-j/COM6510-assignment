@@ -86,7 +86,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private View mapView;
     private Button mButtonStart;
     private Button mButtonEnd;
-
     // for taking & uploading a photo
     private final static int RESULT_CAMERA = 1001;
     private final static int REQUEST_PERMISSION = 1002;
@@ -95,8 +94,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private File cameraFILE;
     private String timeStamp;
     private boolean type;
-
-
     private Barometer barometer;
     private Thermometer thermometer;
     private Float currentPressureValue;
@@ -121,12 +118,28 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         mapView = mapFragment.getView();
         mapFragment.getMapAsync(this);
         mapFragment.getView();
-
+      
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
         // Add an observer on the LiveData. The onChanged() method fires
         // when the observed data changes and the activity is
         // in the foreground.
+        myViewModel.getAllPhotos().observe(this, new Observer<List<PhotoData>>() {
+            @Override
+            public void onChanged(@Nullable List<PhotoData> photoData) {
+                // Update view here
+                Toast.makeText(Maps.this, "onChanged(Photos)",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        myViewModel.getAllTrips().observe(this, new Observer<List<TripData>>() {
+            @Override
+            public void onChanged(@Nullable List<TripData> tripData) {
+                // Update view here
+                Toast.makeText(Maps.this, "onChanged(Trips)",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Click 'stop' to stop tracking and then turn back to the MyView
         mButtonEnd = (Button) findViewById(R.id.trackingStop);
@@ -149,7 +162,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
             Log.i("debug/MyView", "Make the camera button visible");
             if (fab.getVisibility() != View.VISIBLE) {
-                fab.setVisibility(View.VISIBLE);
+               fab.setVisibility(View.VISIBLE);
             }
 
             fab.setOnClickListener(new View.OnClickListener() {
@@ -246,7 +259,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                     REQUEST_PERMISSION);
         }
     }
-
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
@@ -274,7 +286,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         }
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
     }
-
+  
     /**
      * cameraIntent
      * Desc: This is for creating an intent to take a photo.
@@ -297,8 +309,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraURI);
         startActivityForResult(intent, RESULT_CAMERA);
-    }
 
+    }
     /**
      * uploadIntent
      * Desc: This is for creating an intent to upload a photo from the gallery.
@@ -316,7 +328,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         intent.setType("image/*");
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
-
     /**
      * it stops the location updates
      */
@@ -342,14 +353,12 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         barometer.startSensingPressure();
         thermometer.startSensingTemperature();
     }
-
     @Override
     protected void onPause() {
         super.onPause();
         barometer.stopBarometer();
         thermometer.stopBarometer();
     }
-
 
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
@@ -360,6 +369,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             Log.i("MAP", "new location " + mCurrentLocation.toString());
           //  pathLatitude.add(mCurrentLocation.getLatitude());
           //  pathLongitude.add(mCurrentLocation.getLongitude());
+
             if(mCurrentLocationMarker != null){ mCurrentLocationMarker.remove();}
             if (mMap != null) {
                 mCurrentLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
@@ -399,9 +409,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 moveCameraToCurrentLocation(currentZoomLevel);
 
             }
-            mLastLocation = mCurrentLocation;
-        }
-    };
 
     private void moveCameraToCurrentLocation(Float currentZoomLevel){
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), currentZoomLevel));
@@ -452,7 +459,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             // permissions this app might request
         }
     }
-
 
 
     /**
@@ -546,7 +552,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             }
         }
     }
-
     /**
      * registerDatabase
      * Desc: This function is for registering a photo to the external storage.
@@ -565,7 +570,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
         return uri;
     }
-
     /**
      * onURIReturned
      * Desc: This is for registering the uri/timestamp/sensor data of a Photo to a photo database.

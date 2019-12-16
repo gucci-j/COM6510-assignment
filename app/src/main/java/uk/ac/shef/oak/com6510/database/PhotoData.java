@@ -41,7 +41,7 @@ public class PhotoData {
     // GPS Data
     private double GPSLatitude;
     private double GPSLongitude;
-
+  
     public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
         this.filename = filename;
         this.tripId = tripId;
