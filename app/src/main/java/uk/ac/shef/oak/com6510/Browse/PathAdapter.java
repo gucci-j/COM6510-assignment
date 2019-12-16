@@ -12,8 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.TripData;
@@ -21,6 +24,8 @@ import uk.ac.shef.oak.com6510.database.TripData;
 public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
     private List<TripData> paths = new ArrayList<>();
     private OnItemClickListener listener;
+    private static SimpleDateFormat parser = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
+    private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
 
     // single data design
     @NonNull
@@ -36,7 +41,17 @@ public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
     public void onBindViewHolder(@NonNull Trip_Holder holder, int position) {
         TripData currentData = paths.get(position);
         holder.textViewTitle.setText(currentData.getTitle());
-        holder.textViewDate.setText(currentData.getDate());
+        String formattedDate = currentData.getDate();
+
+        // Format date
+        try {
+            Date date = parser.parse(formattedDate);
+            formattedDate = formatter.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        holder.textViewDate.setText(formattedDate);
     }
 
     @Override

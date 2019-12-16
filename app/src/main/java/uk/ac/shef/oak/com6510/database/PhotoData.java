@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
  *      Lecture slide (Week 5 Persisting Data)
  */
 //@Entity(tableName = "photo_table")
-@Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"))
+@Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"), indices = {@Index("trip_id")})
 public class PhotoData {
     @PrimaryKey
     @NonNull

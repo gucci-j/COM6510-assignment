@@ -15,8 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import uk.ac.shef.oak.com6510.MyViewModel;
 import uk.ac.shef.oak.com6510.R;
@@ -32,6 +35,11 @@ public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View
 
     private QueryGetPhotosByTripIDWAdapterCallback callback;
     private MyViewModel myViewModel;
+
+    // for formatting date information in the database
+    private static SimpleDateFormat parser = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
+    private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
+
 
     public ImagePathAdapter(Context context, MyViewModel myViewModel) {
         // Get a new or existing ViewModel from the ViewModelProvider.
@@ -54,9 +62,20 @@ public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View
     public void onBindViewHolder(@NonNull View_Holder holder, int position) {
         TripData currentData = paths.get(position);
         holder.textViewTitle.setText(currentData.getTitle());
-        holder.textViewDate.setText(currentData.getDate());
+        String formattedDate = currentData.getDate();
+
+        // Format date
+        try {
+            Date date = parser.parse(formattedDate);
+            formattedDate = formatter.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        holder.textViewDate.setText(formattedDate);
+
         Log.i("debug", "ImagePathAdapter: onBindViewHolder(): "+currentData.getId()
-                +" "+currentData.getTitle()+" "+currentData.getDate());
+                +" "+currentData.getTitle()+" "+formattedDate);
 
         // Set an image adapter to the recyclerview
         final ImageAdapter mAdapter = new ImageAdapter(context);
