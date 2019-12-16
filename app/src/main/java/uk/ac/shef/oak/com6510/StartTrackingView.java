@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Locale;
 
 import uk.ac.shef.oak.com6510.database.TripData;
-import uk.ac.shef.oak.com6510.database.callbacks.QueryGetTripIDCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
-public class StartTrackingView extends AppCompatActivity implements QueryGetTripIDCallback {
+public class StartTrackingView extends AppCompatActivity implements QueryInsertTripCallback {
 
     private MyViewModel myViewModel;
     private String title;
     private String timeStamp;
 
-    private QueryGetTripIDCallback callback;
+    private QueryInsertTripCallback callback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,23 +41,6 @@ public class StartTrackingView extends AppCompatActivity implements QueryGetTrip
 
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
-
-        // Here we can proceed to the next activity.
-        myViewModel.getAllTrips().observe(StartTrackingView.this, new Observer<List<TripData>>() {
-            @Override
-            public void onChanged(@Nullable List<TripData> tripData) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        TripData trip = myViewModel.getTrip(title, timeStamp);
-                        if (trip != null) {
-                            Log.i("debug/StartTrackingView", "id: "+ trip.getId()+ " title: "+trip.getTitle()+ " date: "+trip.getDate());
-                            callback.onRetrieveFinished(trip.getId());
-                        }
-                    }
-                }).start();
-            }
-        });
 
         // for storing a trip title
         final EditText tripTitle = findViewById(R.id.trip_title);
@@ -73,7 +56,7 @@ public class StartTrackingView extends AppCompatActivity implements QueryGetTrip
                     // obtain a timestamp for a trip
                     timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
                     // register a new trip
-                    myViewModel.insertTrip(title, timeStamp);
+                    myViewModel.insertTrip(title, timeStamp, callback);
                 }else {
                     Toast.makeText(StartTrackingView.this, "The title cannot be empty or white space.",
                             Toast.LENGTH_LONG).show();
@@ -84,7 +67,8 @@ public class StartTrackingView extends AppCompatActivity implements QueryGetTrip
     }
 
     @Override
-    public void onRetrieveFinished(int id) {
+    public void onInsertFinished(int id) {
+        // Here we can proceed to the next activity.
         if (id != -1) {
             Intent intent = new Intent(StartTrackingView.this, Maps.class);
             intent.putExtra("EXTRA_TRIP_ID", id);

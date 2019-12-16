@@ -195,6 +195,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         });
 
     }
+
     /**
      * Check camera hardware
      * Desc: This function checks whether a device has a camera or not.
@@ -214,6 +215,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             return false;
         }
     }
+
     /**
      * Check Permission
      * Desc: This function is for checking permission to get photos.
@@ -235,6 +237,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             requestPermission();
         }
     }
+
     /**
      * Request permission
      * Desc: This function requests permissions for storing images in external storage.

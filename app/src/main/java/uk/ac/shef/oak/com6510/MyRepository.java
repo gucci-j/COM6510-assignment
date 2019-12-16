@@ -21,6 +21,7 @@ import uk.ac.shef.oak.com6510.database.TripDAO;
 import uk.ac.shef.oak.com6510.database.TripData;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
 
 class MyRepository extends ViewModel {
@@ -80,17 +81,19 @@ class MyRepository extends ViewModel {
      *       a trip can be added by using a asynchronous task.
      * @param trip TripData from ViewModel (View)
      */
-    public void insertTrip(TripData trip) {
-        new insertTripAsyncTask(mTripDBDao).execute(trip);
+    public void insertTrip(TripData trip, QueryInsertTripCallback callback) {
+        new insertTripAsyncTask(mTripDBDao, callback).execute(trip);
     }
 
     // AsyncTask<Params, Progress, Result>
     private static class insertTripAsyncTask extends AsyncTask<TripData, Void, Long> {
         // We need this because the class is static and cannot access to the repository.
         private TripDAO mTripAsyncTaskDao;
+        private QueryInsertTripCallback callback;
 
-        private insertTripAsyncTask(TripDAO mTripAsyncTaskDao) {
+        private insertTripAsyncTask(TripDAO mTripAsyncTaskDao, QueryInsertTripCallback callback) {
             this.mTripAsyncTaskDao = mTripAsyncTaskDao;
+            this.callback = callback;
         }
 
         @Override
@@ -101,13 +104,14 @@ class MyRepository extends ViewModel {
             return trip_id;
         }
 
-        /*
+
         @Override
         protected void onPostExecute(Long result) {
-            aRes.processFinish((int)(long) result);
+            // notify to the UI
+            callback.onInsertFinished(result.intValue());
         }
-         */
     }
+
 
     // Add delete and update if possible here!
     public LiveData<List<TripData>> getAllTrips() {
@@ -147,6 +151,7 @@ class MyRepository extends ViewModel {
             callback.onRetrieveFinished(data);
         }
     }
+
 
     public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
         new getPhotosByTripIdWAdapterAsyncTask(mPhotoDBDao, callback, adapter).execute(id);

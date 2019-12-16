@@ -21,6 +21,7 @@ import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
@@ -53,8 +54,8 @@ public class MyViewModel extends AndroidViewModel {
      * @param tripTitle
      * @param timeStamp
      */
-    public void insertTrip(String tripTitle, String timeStamp) {
-        mRepository.insertTrip(new TripData(tripTitle, timeStamp));
+    public void insertTrip(String tripTitle, String timeStamp, QueryInsertTripCallback callback) {
+        mRepository.insertTrip(new TripData(tripTitle, timeStamp), callback);
     }
 
     public LiveData<List<TripData>> getAllTrips() {
