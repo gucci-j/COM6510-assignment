@@ -73,6 +73,7 @@ public class StartTrackingView extends AppCompatActivity implements QueryCallbac
                     timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
                     // register a new trip
                     myViewModel.insertTrip(title, timeStamp);
+
                 }else {
                     Toast.makeText(StartTrackingView.this, "The title cannot be empty or white space.",
                             Toast.LENGTH_LONG).show();

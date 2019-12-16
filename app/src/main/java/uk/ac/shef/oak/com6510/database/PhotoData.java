@@ -11,6 +11,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+import androidx.room.util.StringUtil;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
@@ -41,8 +42,8 @@ public class PhotoData {
     // GPS Data
     private double GPSLatitude;
     private double GPSLongitude;
-
-    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude,double GPSLongitude) {
+    private String path;
+    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude,double GPSLongitude,String path) {
         this.filename = filename;
         this.tripId = tripId;
         this.time = time;
@@ -50,7 +51,7 @@ public class PhotoData {
         this.temperatureValue = temperatureValue;
         this.GPSLatitude = GPSLatitude;
         this.GPSLongitude=GPSLongitude;
-
+        this.path=path;
 
     }
 
@@ -78,4 +79,11 @@ public class PhotoData {
     public double getGPSLatitude() { return GPSLatitude; }
     public double getGPSLongitude() { return GPSLongitude; }
 
+    public String getPath(){return path;}
+    public void addPath(double CurrLatitude, double CurrLongitude){
+        path.concat(String.valueOf(CurrLatitude));
+        path.concat(" ");
+        path.concat(String.valueOf(CurrLongitude));
+        path.concat(" ");
+    }
 }

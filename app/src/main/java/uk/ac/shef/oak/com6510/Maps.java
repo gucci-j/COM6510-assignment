@@ -12,6 +12,8 @@ package uk.ac.shef.oak.com6510;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -40,6 +42,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -58,7 +61,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -76,7 +82,8 @@ import uk.ac.shef.oak.com6510.database.TripData;
 public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
     private MyViewModel myViewModel;
-    private GoogleMap mMap;
+    private static AppCompatActivity activity;
+    private static GoogleMap mMap;
     private List<LatLng> mLatLng;
     private Polyline mPolyline;
     private PolylineOptions mPolylineOptions;
@@ -98,19 +105,23 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private Thermometer thermometer;
     private Float currentPressureValue;
     private Float currentTemperatureValue;
-    private Location mCurrentLocation,mLastLocation;
+    private Location mCurrentLocation;
     private Marker mCurrentLocationMarker;
     private Float currentZoomLevel;
     private String mLastUpdateTime;
     private int tripId;
-
+    private PolylineOptions polylineOptions;
+    private Boolean isTheFirstLocation;
+    private Boolean isTheFirstPath;
+    private String totalPath;
+    private PendingIntent mLocationPendingIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         tripId = intent.getIntExtra("EXTRA_TRIP_ID", -1);
         // if -1: cannot proceed!
-
+        setActivity(this);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -146,6 +157,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 stopLocationUpdates();
+                mMap.clear();
+                mPolyline.remove();
                 Intent intent = new Intent(Maps.this, MyView.class);
                 startActivity(intent);
             }
@@ -192,7 +205,23 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 }
             }
         });
+        initLocations();
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(500);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        startLocationUpdates(getApplicationContext());
 
+    }
+    public static AppCompatActivity getActivity() {
+        return activity;
+    }
+    public static GoogleMap getMap() {
+        return mMap;
+    }
+    public static void setActivity(AppCompatActivity activity) {
+        Maps.activity = activity;
     }
     /**
      * Check camera hardware
@@ -258,7 +287,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                     REQUEST_PERMISSION);
         }
     }
-    private void startLocationUpdates() {
+    private void initLocations() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -283,8 +312,16 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
             return;
         }
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
+       // mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
     }
+    private void startLocationUpdates(Context context) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
+
+        }
+    }
+
     /**
      * cameraIntent
      * Desc: This is for creating an intent to take a photo.
@@ -340,13 +377,10 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     protected void onResume() {
         super.onResume();
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(500);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        Log.i("EXIT", "OnResume!");
 
-        startLocationUpdates();
+
+        startLocationUpdates(getApplicationContext());
         //for sensors restart
         barometer.startSensingPressure();
         thermometer.startSensingTemperature();
@@ -356,7 +390,22 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         super.onPause();
         barometer.stopBarometer();
         thermometer.stopBarometer();
+        Log.i("EXIT", "OnPause!");
+
     }
+    @Override
+    protected void onStop(){
+        super.onStop();
+        Log.i("EXIT", "OnStop!");
+        startService(new Intent(this,mapService.class));
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.i("EXIT", "OnDestroy!");
+
+    }
+
 
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
@@ -375,21 +424,48 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 // Move the camera to the current location at the start time
                 if(mMap.getCameraPosition().zoom>14.0f) {
                     currentZoomLevel=mMap.getCameraPosition().zoom;
-                    moveCameraToCurrentLocation(currentZoomLevel);
+                    animateCameraToCurrentLocation(currentZoomLevel);
                 }else{
                     currentZoomLevel=14.0f;
-                    moveCameraToCurrentLocation(currentZoomLevel);
+                    if(isTheFirstLocation) {
+                        System.out.println("mMap is empty");
+                        animateCameraToCurrentLocation(currentZoomLevel);
+                    }else{
+                        System.out.println("mMap is not empty");
+                        moveCameraToCurrentLocation(currentZoomLevel);
+                    }
+                }
+            }
+            if(mPolyline!=null) {
+                mPolyline.remove();
+            }
+            // Add the polyline if the location is not just start
+            mPolyline = mMap.addPolyline(polylineOptions
+                        .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                        .width(12)
+                        .color(Color.BLUE));
+            if(isTheFirstPath) {
+                if (String.valueOf(mCurrentLocation.getLatitude()).isEmpty() == false) {
+                    totalPath = String.valueOf(mCurrentLocation.getLatitude());
+                    totalPath = totalPath.concat(" ");
+                }
+                if (String.valueOf(mCurrentLocation.getLongitude()).isEmpty() == false) {
+                    totalPath = String.valueOf(mCurrentLocation.getLongitude());
+                    totalPath = totalPath.concat(" ");
+                    isTheFirstPath=false;
+                }
+            }else{
+                if (String.valueOf(mCurrentLocation.getLatitude()).isEmpty() == false) {
+                    totalPath = totalPath.concat(String.valueOf(mCurrentLocation.getLatitude()));
+                    totalPath = totalPath.concat(" ");
+                }
+                if (String.valueOf(mCurrentLocation.getLongitude()).isEmpty() == false) {
+                    totalPath = totalPath.concat(String.valueOf(mCurrentLocation.getLongitude()));
+                    totalPath = totalPath.concat(" ");
                 }
             }
 
-            if(mLastLocation!=null) {
-                // Add the polyline if the location is not just start
-                mPolyline = mMap.addPolyline(new PolylineOptions()
-                        .add(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                        .width(12)
-                        .color(Color.BLUE));
-
-            }else{
+            if(isTheFirstLocation) {
                 CircleOptions circleOptions = new CircleOptions();
                 // Specifying the center of the circle
                 circleOptions.center(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
@@ -403,14 +479,17 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 circleOptions.strokeWidth(2);
                 // Adding the circle to the GoogleMap
                 mMap.addCircle(circleOptions);
-                moveCameraToCurrentLocation(currentZoomLevel);
+              //  animateCameraToCurrentLocation(currentZoomLevel);
 
             }
-            mLastLocation=mCurrentLocation;
+            isTheFirstLocation=false;
         }
     };
-    private void moveCameraToCurrentLocation(Float currentZoomLevel){
+    private void animateCameraToCurrentLocation(Float currentZoomLevel){
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), currentZoomLevel));
+    }
+    private void moveCameraToCurrentLocation(Float currentZoomLevel){
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), currentZoomLevel));
     }
     /**
      * onRequestPermissionsResult
@@ -448,8 +527,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                         uploadIntent();
                     }
                 } else {
-                    Toast toast = Toast.makeText(this,
-                            "Need permission for saving images!", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(this, "Need permission for saving images!", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }
@@ -470,9 +548,17 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        currentZoomLevel=14.0f;
+        currentZoomLevel = 14.0f;
+        polylineOptions = new PolylineOptions();
+        if (mPolyline == null) {
+            isTheFirstLocation = true;
+        } else {
+            isTheFirstLocation = false;
+        }
+        isTheFirstPath = true;
 
         // and next place it, on bottom right (as Google Maps app)
         /*mMap.setMyLocationEnabled(true);
@@ -576,7 +662,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
      */
     private void onURIReturned(Uri uri, String timeStamp) {
         Log.i("debug/Maps", "onURIReturned (tripId): "+tripId);
-        myViewModel.insertPhoto(uri.toString(), tripId, timeStamp, currentPressureValue, currentTemperatureValue, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        Log.i("debug/Maps", "onURIReturned (Path): "+totalPath);
+        myViewModel.insertPhoto(uri.toString(), tripId, timeStamp, currentPressureValue, currentTemperatureValue, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(),totalPath);
 
     }
     private void displayPhotoLocation(){
