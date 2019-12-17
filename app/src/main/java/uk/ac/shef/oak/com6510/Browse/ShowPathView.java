@@ -6,6 +6,9 @@ package uk.ac.shef.oak.com6510.Browse;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -55,6 +58,40 @@ public class ShowPathView extends AppCompatActivity {
                 intent.putExtra("EXTRA_ID", data.getId());
                 intent.putExtra("EXTRA_TITLE", data.getTitle());
                 startActivity(intent);
+            }
+        });
+
+        // Select browsing views
+        // REf: https://developer.android.com/guide/topics/ui/controls/spinner
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setSelection(2);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                // String item = (String) adapterView.getSelectedItem();
+                // Toast.makeText(ShowImageView.this, item+" "+pos, Toast.LENGTH_SHORT).show();
+                switch (pos) {
+                    case 0:
+                        // move to ShowImageView
+                        Intent intent_case0 = new Intent(ShowPathView.this, ShowImageView.class);
+                        startActivity(intent_case0);
+                        break;
+
+                    case 1:
+                        // move to ShowImageSortedByPathView
+                        Intent intent_case1 = new Intent(ShowPathView.this, ShowImageSortedByPathView.class);
+                        startActivity(intent_case1);
+                        break;
+
+                    case 2:
+                        // do nothing
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // Another interface callback
             }
         });
     }

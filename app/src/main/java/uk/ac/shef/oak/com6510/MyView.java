@@ -41,26 +41,6 @@ public class MyView extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        // for browsing path
-        Button buttonBrowsePath = findViewById(R.id.browsing_path);
-        buttonBrowsePath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MyView.this, ShowPathView.class);
-                startActivity(intent);
-            }
-        });
-
-        // for browsing sorted by path
-        Button buttonBrowseSortedByPath = findViewById(R.id.browsing_sortedbypath);
-        buttonBrowseSortedByPath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MyView.this, ShowImageSortedByPathView.class);
-                startActivity(intent);
-            }
-        });
     }
 }
 

@@ -50,7 +50,9 @@
 
         <activity android:name="uk.ac.shef.oak.com6510.Browse.ShowImageByPathView"
             android:parentActivityName="uk.ac.shef.oak.com6510.Browse.ShowPathView"/>
-        <activity android:name=".Browse.ShowImageSortedByPathView" />
+
+        <activity android:name=".Browse.ShowImageSortedByPathView"
+            android:parentActivityName="uk.ac.shef.oak.com6510.MyView"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

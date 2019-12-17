@@ -10,13 +10,15 @@
     android:layout_height="match_parent"
     tools:context="uk.ac.shef.oak.com6510.Browse.ShowImageView">
 
-    <!--
-    <include
-        android:id="@+id/include"
-        layout="@layout/content_browse"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-48dp" />
-        -->
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:entries="@array/spinner_items"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/grid_recycler"
@@ -25,45 +27,12 @@
         android:clipToPadding="false"
         android:gravity="center"
         android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        android:layout_marginTop="8dp"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@+id/spinner"
         tools:item="@layout/content_browse" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="35dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <Button
-            android:id="@+id/bydate"
-            android:layout_width="0dp"
-            android:layout_height="35dp"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:gravity="center"
-            android:scaleType="fitCenter"
-            android:text="Sort by Date" />
-
-        <Button
-            android:id="@+id/bypath"
-            android:layout_width="0dp"
-            android:layout_height="35dp"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:gravity="center"
-            android:scaleType="fitCenter"
-            android:text="Sort by Path" />
-    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
