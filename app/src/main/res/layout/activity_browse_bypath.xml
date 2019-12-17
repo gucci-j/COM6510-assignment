@@ -25,8 +25,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/grid_bypath_recycler"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constrainedHeight="true"
         android:clipToPadding="false"
         android:gravity="center"
         android:paddingBottom="8dp"

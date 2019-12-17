@@ -11,9 +11,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import uk.ac.shef.oak.com6510.Browse.ShowImageSortedByPathView;
 import uk.ac.shef.oak.com6510.Browse.ShowImageView;
-import uk.ac.shef.oak.com6510.Browse.ShowPathView;
 
 public class MyView extends AppCompatActivity {
     @Override

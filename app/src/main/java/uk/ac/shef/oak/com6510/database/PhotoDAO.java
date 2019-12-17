@@ -17,21 +17,24 @@ public interface PhotoDAO {
 
     /**
      * insert
-     * Desc: "onConflict=OnConflictStrategy.REPLACE" is important for updating data.
-     *        If the same image is uploaded, the entry of the image will be replaced
-     *        with the new data.
+     * Desc: With this method, we can insert a photo data.
+     *      "onConflict=OnConflictStrategy.REPLACE" is important for updating data in case of duplication.
      * Ref: https://developer.android.com/reference/android/arch/persistence/room/OnConflictStrategy
      * @param photoData
      */
     @Insert(onConflict= OnConflictStrategy.REPLACE)
     void insert(PhotoData photoData);
 
-    @Query("SELECT * from photo_table ORDER BY time DESC")
+    // Get images sorted by ASC
+    @Query("SELECT * from photo_table ORDER BY time ASC")
     LiveData<List<PhotoData>> getAllPhotos();
 
+    // Get images with a specified trip ID using LiveData
     @Query("SELECT * from photo_table WHERE trip_id = :tripId")
     LiveData<List<PhotoData>> getTripPhotos(int tripId);
 
+    // Get images with a specified tripID without using LiveData.
+    // To use this method, we must implement the aSync task.
     @Query("SELECT * from photo_table WHERE trip_id = :tripId")
     List<PhotoData> getTripPhotosASync(int tripId);
 
