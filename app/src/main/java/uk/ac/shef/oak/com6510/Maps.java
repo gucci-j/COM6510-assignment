@@ -124,22 +124,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         // Add an observer on the LiveData. The onChanged() method fires
         // when the observed data changes and the activity is
         // in the foreground.
-        myViewModel.getAllPhotos().observe(this, new Observer<List<PhotoData>>() {
-            @Override
-            public void onChanged(@Nullable List<PhotoData> photoData) {
-                // Update view here
-                Toast.makeText(Maps.this, "onChanged(Photos)",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-        myViewModel.getAllTrips().observe(this, new Observer<List<TripData>>() {
-            @Override
-            public void onChanged(@Nullable List<TripData> tripData) {
-                // Update view here
-                Toast.makeText(Maps.this, "onChanged(Trips)",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
 
         // Click 'stop' to stop tracking and then turn back to the MyView
         mButtonEnd = (Button) findViewById(R.id.trackingStop);

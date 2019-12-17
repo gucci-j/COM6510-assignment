@@ -26,7 +26,10 @@ import java.util.ArrayList;
 //@Entity(tableName = "photo_table")
 @Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"), indices = {@Index("trip_id")})
 public class PhotoData {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    private int id = 0; // SQLite automatically increments id
+
     @NonNull
     private String filename; // Filename for the photo: Uri
 
@@ -51,6 +54,16 @@ public class PhotoData {
         this.temperatureValue = temperatureValue;
         this.GPSLatitude = GPSLatitude;
         this.GPSLongitude = GPSLongitude;
+    }
+
+    public void setId(@NonNull int id) {
+        this.id = id;
+    }
+
+
+    @NonNull
+    public int getId() {
+        return id;
     }
 
     @NonNull
