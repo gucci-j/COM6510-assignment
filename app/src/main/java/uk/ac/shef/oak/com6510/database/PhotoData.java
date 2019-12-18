@@ -7,28 +7,34 @@ package uk.ac.shef.oak.com6510.database;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+
+import java.util.ArrayList;
 
 /**
  * Entity for each photo
  * Ref: https://developer.android.com/reference/android/arch/persistence/room/ForeignKey.html#childColumns()
  *      Lecture slide (Week 5 Persisting Data)
  */
-// @Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"))
-
-@Entity(tableName = "photo_table")
+//@Entity(tableName = "photo_table")
+@Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"), indices = {@Index("trip_id")})
 public class PhotoData {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    private int id = 0; // SQLite automatically increments id
+
     @NonNull
     private String filename; // Filename for the photo: Uri
 
-    /*
     @ColumnInfo(name = "trip_id")
     private int tripId; // Id from TripData
-     */
 
     private String time; // The time when a photo was taken
 
@@ -37,15 +43,27 @@ public class PhotoData {
     private Float temperatureValue;
 
     // GPS Data
-    private String GPSValue;
-    public PhotoData(String filename, String time, Float pressureValue, Float temperatureValue, String GPSValue) {
+    private double GPSLatitude;
+    private double GPSLongitude;
+  
+    public PhotoData(String filename, int tripId, String time, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
         this.filename = filename;
-        //this.tripId = tripId;
+        this.tripId = tripId;
         this.time = time;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;
-        this.GPSValue=GPSValue;
+        this.GPSLatitude = GPSLatitude;
+        this.GPSLongitude = GPSLongitude;
+    }
 
+    public void setId(@NonNull int id) {
+        this.id = id;
+    }
+
+
+    @NonNull
+    public int getId() {
+        return id;
     }
 
     @NonNull
@@ -53,11 +71,9 @@ public class PhotoData {
         return filename;
     }
 
-    /*
     public int getTripId() {
         return tripId;
     }
-    */
 
     public String getTime() {
         return time;
@@ -71,5 +87,6 @@ public class PhotoData {
         return temperatureValue;
     }
 
-    public String getGPSValue(){return GPSValue;}
+    public double getGPSLatitude() { return GPSLatitude; }
+    public double getGPSLongitude() { return GPSLongitude; }
 }

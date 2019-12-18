@@ -37,6 +37,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -49,7 +50,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -59,12 +64,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import java.util.concurrent.TimeUnit;
+
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
+
+import static java.lang.String.valueOf;
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -76,10 +86,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private static final int ACCESS_FINE_LOCATION = 123;
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
-    private MapView mapView;
+    private View mapView;
     private Button mButtonStart;
     private Button mButtonEnd;
-
     // for taking & uploading a photo
     private final static int RESULT_CAMERA = 1001;
     private final static int REQUEST_PERMISSION = 1002;
@@ -92,39 +101,34 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private Thermometer thermometer;
     private Float currentPressureValue;
     private Float currentTemperatureValue;
-    private Location mCurrentLocation,mLastLocation;
+    private Location mCurrentLocation;
+    private Marker mCurrentLocationMarker;
+    private Float currentZoomLevel;
     private String mLastUpdateTime;
+    private int tripId;
+    private Boolean isTheFirstLocation;
+    private String totalPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        tripId = intent.getIntExtra("EXTRA_TRIP_ID", -1);
+        // if -1: cannot proceed!
+
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        mapView = mapFragment.getView();
         mapFragment.getMapAsync(this);
-
+        mapFragment.getView();
+      
         // Get a new or existing ViewModel from the ViewModelProvider.
         myViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
         // Add an observer on the LiveData. The onChanged() method fires
         // when the observed data changes and the activity is
         // in the foreground.
-        myViewModel.getAllPhotos().observe(this, new Observer<List<PhotoData>>() {
-            @Override
-            public void onChanged(@Nullable List<PhotoData> photoData) {
-                // Update view here
-                Toast.makeText(Maps.this, "onChanged(Photos)",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-        myViewModel.getAllTrips().observe(this, new Observer<List<TripData>>() {
-            @Override
-            public void onChanged(@Nullable List<TripData> tripData) {
-                // Update view here
-                Toast.makeText(Maps.this, "onChanged(Trips)",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
 
         // Click 'stop' to stop tracking and then turn back to the MyView
         mButtonEnd = (Button) findViewById(R.id.trackingStop);
@@ -132,6 +136,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 stopLocationUpdates();
+                myViewModel.update(tripId,totalPath);
                 Intent intent = new Intent(Maps.this, MyView.class);
                 startActivity(intent);
             }
@@ -147,7 +152,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_camera);
             Log.i("debug/MyView", "Make the camera button visible");
             if (fab.getVisibility() != View.VISIBLE) {
-                fab.setVisibility(View.VISIBLE);
+               fab.setVisibility(View.VISIBLE);
             }
 
             fab.setOnClickListener(new View.OnClickListener() {
@@ -180,6 +185,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         });
 
     }
+
     /**
      * Check camera hardware
      * Desc: This function checks whether a device has a camera or not.
@@ -199,6 +205,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             return false;
         }
     }
+
     /**
      * Check Permission
      * Desc: This function is for checking permission to get photos.
@@ -220,6 +227,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             requestPermission();
         }
     }
+
     /**
      * Request permission
      * Desc: This function requests permissions for storing images in external storage.
@@ -244,20 +252,23 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                     REQUEST_PERMISSION);
         }
     }
+
+    /**
+     * StartLocationUpdates
+     * Desc: start update the location
+     *       first is to check the permission
+     *       then request for the location callback, tracking started
+     */
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-
             } else {
-
                 // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         ACCESS_FINE_LOCATION);
@@ -271,6 +282,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         }
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
     }
+  
     /**
      * cameraIntent
      * Desc: This is for creating an intent to take a photo.
@@ -293,6 +305,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraURI);
         startActivityForResult(intent, RESULT_CAMERA);
+
     }
     /**
      * uploadIntent
@@ -326,8 +339,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     protected void onResume() {
         super.onResume();
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(500);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -343,7 +356,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         thermometer.stopBarometer();
     }
 
-
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -351,21 +363,64 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             mCurrentLocation = locationResult.getLastLocation();
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
             Log.i("MAP", "new location " + mCurrentLocation.toString());
-            if (mMap != null)
-                mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                        .title(mLastUpdateTime));
+            //  pathLatitude.add(mCurrentLocation.getLatitude());
+            //  pathLongitude.add(mCurrentLocation.getLongitude());
 
-           // mLatLng.add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
-            if(mLastLocation!=null) {
-                mPolyline = mMap.addPolyline(new PolylineOptions()
-                        .add(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                        .width(25)
-                        .color(Color.BLUE));
+            if (mCurrentLocationMarker != null) {
+                mCurrentLocationMarker.remove();
             }
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 14.0f));
-            mLastLocation=mCurrentLocation;
+            if (mMap != null) {
+                mCurrentLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                        .title("Current Position")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                // Move the camera to the current location at the start time
+                if (mMap.getCameraPosition().zoom > 14.0f) {
+                    currentZoomLevel = mMap.getCameraPosition().zoom;
+                    moveCameraToCurrentLocation(currentZoomLevel);
+                } else {
+                    currentZoomLevel = 14.0f;
+                    moveCameraToCurrentLocation(currentZoomLevel);
+                }
+            }
+
+            if (isTheFirstLocation == false) {
+                // Add the polyline if the location is not just start
+                mPolyline = mMap.addPolyline(mPolylineOptions
+                        .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                        .width(12)
+                        .color(Color.BLUE));
+                totalPath=totalPath.concat(valueOf(mCurrentLocation.getLatitude()));
+                totalPath=totalPath.concat(" ");
+                totalPath=totalPath.concat(valueOf(mCurrentLocation.getLongitude()));
+                totalPath=totalPath.concat(" ");
+
+            } else {
+                CircleOptions circleOptions = new CircleOptions();
+                // Specifying the center of the circle
+                circleOptions.center(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+                // Radius of the circle
+                circleOptions.radius(30);
+                // Border color of the circle
+                circleOptions.strokeColor(Color.BLUE);
+                // Fill color of the circle
+                circleOptions.fillColor(Color.BLUE);
+                // Border width of the circle
+                circleOptions.strokeWidth(2);
+                // Adding the circle to the GoogleMap
+                mMap.addCircle(circleOptions);
+                moveCameraToCurrentLocation(currentZoomLevel);
+                isTheFirstLocation=false;
+                totalPath=valueOf(mCurrentLocation.getLatitude());
+                totalPath=totalPath.concat(" ");
+                totalPath=totalPath.concat(valueOf(mCurrentLocation.getLongitude()));
+                totalPath=totalPath.concat(" ");
+            }
         }
     };
+
+    private void moveCameraToCurrentLocation(Float currentZoomLevel){
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), currentZoomLevel));
+    }
 
     /**
      * onRequestPermissionsResult
@@ -414,7 +469,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     }
 
 
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -428,13 +482,10 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
-
+        currentZoomLevel=14.0f;
+        isTheFirstLocation=true;
+        mPolylineOptions=new PolylineOptions();
     }
-
 
     /**
      * onActivityResult
@@ -469,6 +520,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 currentPressureValue =  barometer.getCurrentPressureValue();
                 currentTemperatureValue = thermometer.getCurrentTemperatureValue();
                 onURIReturned(uri, timeStamp);
+                displayPhotoLocation();
             }
         }
 
@@ -481,6 +533,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 currentTemperatureValue = thermometer.getCurrentTemperatureValue();
                 Log.i("debug/MyView", "cameraURI: "+cameraURI);
                 onURIReturned(cameraURI, timeStamp);
+                displayPhotoLocation();
             }
             else{
                 Log.d("debug/MyView","onActivityResult: cameraURI is null or cancelled.");
@@ -512,6 +565,20 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
      * @param timeStamp
      */
     private void onURIReturned(Uri uri, String timeStamp) {
-        myViewModel.insertPhoto(uri.toString(), timeStamp, currentPressureValue, currentTemperatureValue,mCurrentLocation.toString());
+        Log.i("debug/Maps", "onURIReturned (tripId): "+tripId);
+        myViewModel.insertPhoto(uri.toString(), tripId, timeStamp, currentPressureValue, currentTemperatureValue, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+
+
+    }
+
+    /**
+     * DisplayPhotoLocation
+     * Desc: add mark to the location where a photo taken or a picture uploaded to the database from gallery
+     */
+    private void displayPhotoLocation(){
+        // update the location of this photo
+        if (mMap != null)
+            mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                    .title(mLastUpdateTime));
     }
 }

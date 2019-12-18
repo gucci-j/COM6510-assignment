@@ -19,10 +19,14 @@ public class TripData {
     private String title; // Title of a visit
     private String date; // Start date of the visit
 
+    @ColumnInfo(name = "fullpath")
+    private String fullpath; // Full path of the trip
+
 
     public TripData(String title, String date) {
         this.title = title;
         this.date = date;
+        this.fullpath=null;
     }
 
     public void setId(@NonNull int id) {
@@ -41,5 +45,12 @@ public class TripData {
 
     public String getDate() {
         return date;
+    }
+
+    public String getFullpath() {
+        return fullpath;
+    }
+    public void setFullpath(String fullpath){
+        this.fullpath=fullpath;
     }
 }

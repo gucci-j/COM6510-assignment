@@ -13,10 +13,17 @@ import androidx.lifecycle.LiveData;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.Browse.ImageAdapter;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetFullPathByTripIdCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetTitleByTripIdCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
 public class MyViewModel extends AndroidViewModel {
     private final MyRepository mRepository;
@@ -39,19 +46,42 @@ public class MyViewModel extends AndroidViewModel {
      * @param pressureValue
      * @param temperatureValue
      */
-    public void insertPhoto(String uri, String timeStamp, Float pressureValue, Float temperatureValue, String GPSValue) {
-        mRepository.insertPhoto(new PhotoData(uri, timeStamp, pressureValue, temperatureValue,GPSValue));
+    public void insertPhoto(String uri, int tripID, String timeStamp, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
+        mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSLatitude, GPSLongitude));
     }
 
-    public void insertTrip(String tripTitle, String timeStamp) {
-        mRepository.insertTrip(new TripData(tripTitle, timeStamp));
+    /**
+     * insertTrip
+     * Desc: make a new TripData entry and register it to the database.
+     * @param tripTitle
+     * @param timeStamp
+     */
+    public void insertTrip(String tripTitle, String timeStamp, QueryInsertTripCallback callback) {
+        mRepository.insertTrip(new TripData(tripTitle, timeStamp), callback);
     }
-
+    public void getTripTitle(int tripId,QueryGetTitleByTripIdCallback callback){
+        mRepository.getTripTitle(tripId,callback);
+    }
     public LiveData<List<TripData>> getAllTrips() {
         return allTrips;
     }
-
     public LiveData<List<PhotoData>> getAllPhotos() {
         return allPhotos;
     }
+    public TripData getTrip(String title, String id) {return mRepository.getTrip(title, id); }
+
+    public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
+        mRepository.getPhotosByTripId(id, callback);
+    }
+
+    public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
+        mRepository.getPhotosByTripIdWAdapter(id, callback, adapter);
+    }
+    public void update(int tripId,String fullPath){
+        mRepository.update(tripId,fullPath);
+    }
+    public void getFullPath(int tripId, QueryGetFullPathByTripIdCallback callback){
+        mRepository.getFullPath(tripId,callback);
+    }
+
 }
