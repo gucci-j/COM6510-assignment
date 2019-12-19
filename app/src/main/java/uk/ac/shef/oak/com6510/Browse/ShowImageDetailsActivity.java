@@ -20,6 +20,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -192,10 +193,10 @@ public class ShowImageDetailsActivity extends AppCompatActivity implements Query
             if(tempGPSLatitude!=GPSLatitude&&tempGPSLongitude!=GPSLongitude) {
                 mMap.addMarker(new MarkerOptions().position(new LatLng(tempGPSLatitude, tempGPSLongitude))
                             .title(tempTimeValue)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                             .alpha(0.5f));
 
             }
-
         }
     }
 }

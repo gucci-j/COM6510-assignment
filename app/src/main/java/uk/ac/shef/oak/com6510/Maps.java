@@ -314,7 +314,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         super.onResume();
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(500);
+        mLocationRequest.setFastestInterval(2000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -361,7 +361,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 // Add the polyline if the location is not just start
                 mPolyline = mMap.addPolyline(mPolylineOptions
                         .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                        .width(12)
+                        .width(2)
                         .color(Color.BLUE));
                 totalPath=totalPath.concat(valueOf(mCurrentLocation.getLatitude()));
                 totalPath=totalPath.concat(" ");
