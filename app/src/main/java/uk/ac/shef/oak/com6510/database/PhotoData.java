@@ -4,8 +4,6 @@
 
 package uk.ac.shef.oak.com6510.database;
 
-import android.location.Location;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -13,17 +11,11 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
-
-import java.util.ArrayList;
-
 /**
  * Entity for each photo
  * Ref: https://developer.android.com/reference/android/arch/persistence/room/ForeignKey.html#childColumns()
  *      Lecture slide (Week 5 Persisting Data)
  */
-//@Entity(tableName = "photo_table")
 @Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"), indices = {@Index("trip_id")})
 public class PhotoData {
     @PrimaryKey(autoGenerate = true)
@@ -60,7 +52,6 @@ public class PhotoData {
         this.id = id;
     }
 
-
     @NonNull
     public int getId() {
         return id;
@@ -88,5 +79,6 @@ public class PhotoData {
     }
 
     public double getGPSLatitude() { return GPSLatitude; }
+
     public double getGPSLongitude() { return GPSLongitude; }
 }

@@ -23,6 +23,11 @@ import uk.ac.shef.oak.com6510.MyViewModel;
 import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.TripData;
 
+
+/**
+ * ShowIMageSortedByPathView
+ * This is for showing all images in the database sorted by path.
+ */
 public class ShowImageSortedByPathView extends AppCompatActivity {
     private MyViewModel myViewModel;
 

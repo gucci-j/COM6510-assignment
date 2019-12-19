@@ -6,7 +6,6 @@ package uk.ac.shef.oak.com6510;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,15 +13,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-import uk.ac.shef.oak.com6510.database.TripData;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
 public class StartTrackingView extends AppCompatActivity implements QueryInsertTripCallback {
@@ -58,6 +54,7 @@ public class StartTrackingView extends AppCompatActivity implements QueryInsertT
                     // register a new trip
                     myViewModel.insertTrip(title, timeStamp, callback);
                 }else {
+                    // If title is empty or includes only white spaces
                     Toast.makeText(StartTrackingView.this, "The title cannot be empty or white space.",
                             Toast.LENGTH_LONG).show();
                     tripTitle.setText(null);
@@ -66,6 +63,14 @@ public class StartTrackingView extends AppCompatActivity implements QueryInsertT
         });
     }
 
+    /**
+     * onInsertFinished
+     * Desc: This callback is used for getting a result from myViewModel.insertTrip().
+     *       The result is an ID, which corresponds to the ID for a new inserted data.
+     *       We need the ID to associate photos taken during a trip with the same tripID.
+     *       The ID is passed to the following activity: Maps.
+     * @param id int
+     */
     @Override
     public void onInsertFinished(int id) {
         // Here we can proceed to the next activity.

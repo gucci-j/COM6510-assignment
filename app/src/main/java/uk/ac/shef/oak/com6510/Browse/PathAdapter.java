@@ -21,6 +21,12 @@ import java.util.Locale;
 import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.TripData;
 
+/**
+ * PathAdapter
+ * This is used for showing paths by list.
+ * Each item has a listener because if an item is selected, we have to show the images
+ * with the same trip ID in another activity.
+ */
 public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
     private List<TripData> paths = new ArrayList<>();
     private OnItemClickListener listener;
@@ -61,7 +67,7 @@ public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
 
     public void setPaths(List<TripData> paths) {
         this.paths = paths;
-        notifyDataSetChanged(); // Need to replace later!
+        notifyDataSetChanged();
     }
 
     class Trip_Holder extends RecyclerView.ViewHolder {

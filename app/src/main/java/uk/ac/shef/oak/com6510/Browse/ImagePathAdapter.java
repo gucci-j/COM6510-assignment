@@ -28,6 +28,13 @@ import uk.ac.shef.oak.com6510.database.TripData;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
 
 
+/**
+ * ImagePathAdapter
+ * This is for showing all images sorted by path.
+ * Internally, this class is for showing a trip title and its date and serves as a parent recyclerview.
+ * A child recyclerview is an ImageAdapter, which is just the same as used in ShowImageView.java.
+ * We "recycle" the adapter to achieve efficiency of the implementation.
+ */
 // parent adapter
 public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View_Holder> implements QueryGetPhotosByTripIDWAdapterCallback {
     private List<TripData> paths = new ArrayList<>();
@@ -42,9 +49,7 @@ public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View
 
 
     public ImagePathAdapter(Context context, MyViewModel myViewModel) {
-        // Get a new or existing ViewModel from the ViewModelProvider.
         this.context = context;
-        // Get a new or existing ViewModel from the ViewModelProvider.
         this.myViewModel = myViewModel;
     }
 
@@ -87,6 +92,7 @@ public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View
         holder.imageRecyclerView.setLayoutManager(mLayoutManager);
         holder.imageRecyclerView.setHasFixedSize(true);
 
+        // Need to give an adapter to notify the view when the data is changed.
         callback = this;
         myViewModel.getPhotosByTripIdWAdapter(currentData.getId(), callback, mAdapter);
     }

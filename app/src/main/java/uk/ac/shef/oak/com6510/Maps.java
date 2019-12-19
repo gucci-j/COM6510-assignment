@@ -1,13 +1,4 @@
-/*
- * Copyright (c) 2019. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 package uk.ac.shef.oak.com6510;
-
-/*
- * Copyright (c) 2018. This code has been developed by Fabio Ciravegna, The University of Sheffield. All rights reserved. No part of this code can be used without the explicit written permission by the author
- */
-
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -23,13 +14,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Environment;
@@ -37,7 +24,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -47,34 +33,26 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import java.util.concurrent.TimeUnit;
-
-import uk.ac.shef.oak.com6510.database.PhotoData;
-import uk.ac.shef.oak.com6510.database.TripData;
-
 import static java.lang.String.valueOf;
+
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -87,9 +65,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private View mapView;
-    private Button mButtonStart;
     private Button mButtonEnd;
-    // for taking & uploading a photo
     private final static int RESULT_CAMERA = 1001;
     private final static int REQUEST_PERMISSION = 1002;
     private static final int READ_REQUEST_CODE = 42;
@@ -136,7 +112,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 stopLocationUpdates();
-                myViewModel.update(tripId,totalPath);
+                myViewModel.updateTrip(tripId,totalPath);
                 Intent intent = new Intent(Maps.this, MyView.class);
                 startActivity(intent);
             }
@@ -307,6 +283,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         startActivityForResult(intent, RESULT_CAMERA);
 
     }
+
     /**
      * uploadIntent
      * Desc: This is for creating an intent to upload a photo from the gallery.
@@ -324,17 +301,14 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         intent.setType("image/*");
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
+
     /**
      * it stops the location updates
      */
-
     private void stopLocationUpdates(){
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
-    /**
-     *
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -540,6 +514,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             }
         }
     }
+
     /**
      * registerDatabase
      * Desc: This function is for registering a photo to the external storage.
@@ -558,6 +533,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
         return uri;
     }
+
     /**
      * onURIReturned
      * Desc: This is for registering the uri/timestamp/sensor data of a Photo to a photo database.

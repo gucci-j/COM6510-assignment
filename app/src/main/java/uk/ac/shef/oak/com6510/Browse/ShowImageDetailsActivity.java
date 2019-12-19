@@ -4,17 +4,11 @@
 
 package uk.ac.shef.oak.com6510.Browse;
 
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.ImageView;
@@ -22,46 +16,31 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.pkmmte.view.CircularImageView;
-
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
-
-import uk.ac.shef.oak.com6510.Maps;
-import uk.ac.shef.oak.com6510.MyView;
 import uk.ac.shef.oak.com6510.MyViewModel;
 import uk.ac.shef.oak.com6510.R;
-import uk.ac.shef.oak.com6510.StartTrackingView;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetFullPathByTripIdCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetTitleByTripIdCallback;
 
+
+/**
+ * ShowImageDetailsActivity
+ * This is for showing a detailed information on a selected image.
+ */
 public class ShowImageDetailsActivity extends AppCompatActivity implements QueryGetTitleByTripIdCallback,QueryGetFullPathByTripIdCallback,OnMapReadyCallback, QueryGetPhotosByTripIDCallback {
     private MyViewModel myViewModel;
     private String tripTitle;

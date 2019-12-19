@@ -28,9 +28,6 @@ public class Barometer {
     /**
      * this is used to stop the barometer if we have not seen any movement in the last 20 seconds
      */
-
-
-
     public Barometer(Context context) {
         // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
         timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
@@ -40,7 +37,6 @@ public class Barometer {
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mBarometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
         initBarometerListener();
-
     }
 
     /**

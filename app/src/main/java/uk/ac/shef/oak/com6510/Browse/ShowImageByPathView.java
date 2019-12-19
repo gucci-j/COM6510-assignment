@@ -23,6 +23,11 @@ import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 
 
+/**
+ * ShowImageByPathView
+ * This is for showing all images with the same trip ID.
+ * Therefore, it is totally different from ShowImageSortedByPathView, which shows "all images in the database."
+ */
 public class ShowImageByPathView extends AppCompatActivity implements QueryGetPhotosByTripIDCallback {
     private MyViewModel myViewModel;
     private String tripTitle;

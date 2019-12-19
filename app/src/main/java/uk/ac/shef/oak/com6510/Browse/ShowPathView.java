@@ -22,6 +22,10 @@ import uk.ac.shef.oak.com6510.MyViewModel;
 import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.TripData;
 
+/**
+ * ShowPathView
+ * Desc: This is for showing paths by list.
+ */
 public class ShowPathView extends AppCompatActivity {
     private MyViewModel myViewModel;
 

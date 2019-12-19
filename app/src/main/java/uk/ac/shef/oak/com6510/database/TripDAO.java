@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Update;
 
 import java.util.List;
 
@@ -24,9 +23,6 @@ public interface TripDAO {
     @Query("SELECT * from trip_table ORDER BY id DESC")
     LiveData<List<TripData>> getAllTrips();
 
-    @Query("SELECT * from trip_table WHERE title = :titleTrip AND date = :dateTrip LIMIT 1")
-    TripData getTrip(String titleTrip, String dateTrip);
-
     @Query("SELECT title from trip_table WHERE id = :tripId LIMIT 1")
     String getTripTitle(int tripId);
 
@@ -35,23 +31,10 @@ public interface TripDAO {
 
     @Query("SELECT fullpath from trip_table WHERE id = :tripId LIMIT 1")
     String getFullPath(int tripId);
+
     // Can add delete and update?
-
     /*
-    @Insert
-    void insertAll(NumberData... numberData);
-
     @Delete
     void delete(NumberData numberData);
-
-    // it selects a random element
-    @Query("SELECT * FROM numberData ORDER BY RANDOM() LIMIT 1")
-    LiveData<NumberData> retrieveOneNumber();
-
-    @Delete
-    void deleteAll(NumberData... numberData);
-
-    @Query("SELECT COUNT(*) FROM numberData")
-    int howManyElements();
      */
 }

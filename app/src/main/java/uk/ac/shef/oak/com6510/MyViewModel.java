@@ -38,13 +38,20 @@ public class MyViewModel extends AndroidViewModel {
         allPhotos = mRepository.getAllPhotos();
     }
 
+    public LiveData<List<TripData>> getAllTrips() {
+        return allTrips;
+    }
+    public LiveData<List<PhotoData>> getAllPhotos() {
+        return allPhotos;
+    }
+
     /**
      * insertPhoto
      * Desc: make a new PhotoData entry and register it to the database by passing data to the repository.
      * @param uri String
-     * @param timeStamp
-     * @param pressureValue
-     * @param temperatureValue
+     * @param timeStamp String
+     * @param pressureValue Float
+     * @param temperatureValue Float
      */
     public void insertPhoto(String uri, int tripID, String timeStamp, Float pressureValue, Float temperatureValue, double GPSLatitude, double GPSLongitude) {
         mRepository.insertPhoto(new PhotoData(uri, tripID, timeStamp, pressureValue, temperatureValue, GPSLatitude, GPSLongitude));
@@ -53,35 +60,69 @@ public class MyViewModel extends AndroidViewModel {
     /**
      * insertTrip
      * Desc: make a new TripData entry and register it to the database.
-     * @param tripTitle
-     * @param timeStamp
+     *       callback is used for getting a corresponding trip ID.
+     * @param tripTitle String
+     * @param timeStamp String
      */
     public void insertTrip(String tripTitle, String timeStamp, QueryInsertTripCallback callback) {
         mRepository.insertTrip(new TripData(tripTitle, timeStamp), callback);
     }
+
+
+    /**
+     * getTripTitle
+     * Desc: get a trip title based on a trip ID. The result can be obtained using callback.
+     * @param tripId int
+     * @param callback Activity
+     */
     public void getTripTitle(int tripId,QueryGetTitleByTripIdCallback callback){
         mRepository.getTripTitle(tripId,callback);
     }
-    public LiveData<List<TripData>> getAllTrips() {
-        return allTrips;
-    }
-    public LiveData<List<PhotoData>> getAllPhotos() {
-        return allPhotos;
-    }
-    public TripData getTrip(String title, String id) {return mRepository.getTrip(title, id); }
 
+
+    /**
+     * getPhotosByTripid
+     * Desc: get PhotoData with the same trip id. The results can be obtained using callback.
+     * @param id int
+     * @param callback Activity
+     */
     public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
         mRepository.getPhotosByTripId(id, callback);
     }
 
+
+    /**
+     * getPhotosByTripIdWAdapter
+     * Desc: get PhotoData with the same trip id.
+     *       Must give an adapter to notify to the adapter that the dataset has been changed because of this retrieval.
+     * @param id int
+     * @param callback Activity
+     * @param adapter ImageAdapter
+     */
     public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
         mRepository.getPhotosByTripIdWAdapter(id, callback, adapter);
     }
-    public void update(int tripId,String fullPath){
-        mRepository.update(tripId,fullPath);
+
+
+    /**
+     * updateTrip
+     * Desc: update a TripData entry to insert the full path data of a tracking.
+     * @param tripId int
+     * @param fullPath String
+     */
+    public void updateTrip(int tripId,String fullPath){
+        mRepository.updateTrip(tripId,fullPath);
     }
+
+
+    /**
+     * getFullPath
+     * Desc: get full path data based on a trip ID. The result is notified via callback.
+     *       This is used for showing full path in the detail view of an image.
+     * @param tripId int
+     * @param callback Activity
+     */
     public void getFullPath(int tripId, QueryGetFullPathByTripIdCallback callback){
         mRepository.getFullPath(tripId,callback);
     }
-
 }

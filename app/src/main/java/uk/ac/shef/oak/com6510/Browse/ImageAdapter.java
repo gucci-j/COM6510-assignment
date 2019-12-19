@@ -144,25 +144,4 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
         this.items = new ArrayList<>();
         this.context = cont;
     }
-
-    /*
-    public ImageAdapter(Context cont, List<ImageElement> items) {
-        super();
-        this.items = items;
-        context = cont;
-    }
-     */
-
-
-    // convenience method for getting data at click position
-    ImageElement getItem(int id) {
-        return items.get(id);
-    }
-
-    /*
-    public static List<ImageElement> getItems() {
-        return items;
-    }
-
-     */
 }

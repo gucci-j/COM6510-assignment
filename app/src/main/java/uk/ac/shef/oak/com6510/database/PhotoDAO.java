@@ -38,5 +38,5 @@ public interface PhotoDAO {
     @Query("SELECT * from photo_table WHERE trip_id = :tripId")
     List<PhotoData> getTripPhotosASync(int tripId);
 
-    // Delete, Edit, Retrieve group by
+    // Delete, Edit, Retrieve group
 }

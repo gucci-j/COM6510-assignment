@@ -4,10 +4,6 @@
 
 package uk.ac.shef.oak.com6510.database.callbacks;
 
-import java.util.List;
-
-import uk.ac.shef.oak.com6510.database.PhotoData;
-
 public interface QueryGetFullPathByTripIdCallback {
     public void onRetrieveFullPathFinished(String fullpath);
 }

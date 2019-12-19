@@ -26,7 +26,7 @@ public class TripData {
     public TripData(String title, String date) {
         this.title = title;
         this.date = date;
-        this.fullpath=null;
+        this.fullpath = null;
     }
 
     public void setId(@NonNull int id) {
@@ -50,6 +50,7 @@ public class TripData {
     public String getFullpath() {
         return fullpath;
     }
+
     public void setFullpath(String fullpath){
         this.fullpath=fullpath;
     }

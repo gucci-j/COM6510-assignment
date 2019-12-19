@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import uk.ac.shef.oak.com6510.MyView;
 import uk.ac.shef.oak.com6510.MyViewModel;
 import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 
+/**
+ * ShowImageView
+ * This is for showing all images by asc order.
+ */
 public class ShowImageView extends AppCompatActivity {
     private MyViewModel myViewModel;
 
