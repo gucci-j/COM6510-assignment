@@ -315,6 +315,12 @@ class MyRepository extends ViewModel {
     }
 
 
+    /**
+     * deletePhoto
+     * Desc: delete a photo from PhotoData table.
+     *       We have to specify the photo ID to delete.
+     * @param id int
+     */
     public void deletePhoto(int id) {
         new deletePhotoAsyncTask(mPhotoDBDao).execute(id);
     }

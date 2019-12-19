@@ -136,6 +136,12 @@ public class MyViewModel extends AndroidViewModel {
         mRepository.deleteTrip(tripData);
     }
 
+
+    /**
+     * deletePhoto
+     * Desc; delete a photo when it is long clicked.
+     * @param photoId int
+     */
     public void deletePhoto(int photoId) {
         mRepository.deletePhoto(photoId);
     }
