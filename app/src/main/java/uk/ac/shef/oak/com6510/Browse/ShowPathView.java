@@ -9,10 +9,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,8 +67,24 @@ public class ShowPathView extends AppCompatActivity {
             }
         });
 
+        // Swipe to delete path data
+        // NOTE: because we set onDestory = CASCADE in PhotoData (Entity), the PhotoData entry will also be deleted.
+        // (not the original data in the gallery)
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                myViewModel.deleteTrip(adapter.getTripBySwipe(viewHolder.getAdapterPosition()));
+                Toast.makeText(ShowPathView.this, "Path data has been deleted!", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
+
         // Select browsing views
-        // REf: https://developer.android.com/guide/topics/ui/controls/spinner
+        // Ref: https://developer.android.com/guide/topics/ui/controls/spinner
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setSelection(2);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

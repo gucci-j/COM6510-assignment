@@ -11,12 +11,17 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import static androidx.room.ForeignKey.CASCADE;
+
 /**
  * Entity for each photo
  * Ref: https://developer.android.com/reference/android/arch/persistence/room/ForeignKey.html#childColumns()
  *      Lecture slide (Week 5 Persisting Data)
  */
-@Entity(tableName = "photo_table", foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id", childColumns = "trip_id"), indices = {@Index("trip_id")})
+@Entity(tableName = "photo_table",
+        foreignKeys = @ForeignKey(entity = TripData.class, parentColumns = "id",
+                    childColumns = "trip_id", onDelete = CASCADE),
+        indices = {@Index("trip_id")})
 public class PhotoData {
     @PrimaryKey(autoGenerate = true)
     @NonNull

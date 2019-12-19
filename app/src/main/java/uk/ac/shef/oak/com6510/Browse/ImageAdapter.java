@@ -5,6 +5,7 @@
 package uk.ac.shef.oak.com6510.Browse;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.FileDescriptor;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.shef.oak.com6510.MyViewModel;
 import uk.ac.shef.oak.com6510.R;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 
@@ -33,6 +37,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
     // needs variables for the data
     static private Context context;
     private List<ImageElement> items;
+    private MyViewModel myViewModel;
 
 
     // single data design
@@ -77,6 +82,30 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                     context.startActivity(intent);
                 }
             });
+
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // Show alert to choose delete or not
+                    // Ref: https://developer.android.com/reference/android/app/AlertDialog
+                    new AlertDialog.Builder(context)
+                            .setTitle("Confirmation")
+                            .setMessage("Do you want to delete this photo?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // If Yes is clicked
+                                    myViewModel.deletePhoto(items.get(position).photoId);
+                                    Toast.makeText(context, "The selected photo has been deleted!", Toast.LENGTH_SHORT).show();
+                                    items.remove(position);
+                                    notifyItemRemoved(position); // because we did not pass ImageElement
+                                }
+                            })
+                            .setNegativeButton("No", null)
+                            .show();
+                    return true; // for avoiding collision with onClick
+                }
+            });
         }
     }
 
@@ -100,6 +129,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                 ParcelFileDescriptor pfDescriptor = null;
                 Uri photoUri = Uri.parse(photo.getFilename());
                 int tripId = photo.getTripId();
+                int photoId = photo.getId();
                 Float pressureValue  = photo.getPressureValue();
                 Float temperatureValue= photo.getTemperatureValue();
                 String timeValue=photo.getTime();
@@ -115,7 +145,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                                     ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
                     pfDescriptor.close();
 
-                    ImageElement element = new ImageElement(bitmap, photoUri,tripId,pressureValue,temperatureValue,timeValue,GPSLatitude,GPSLongitude);
+                    ImageElement element = new ImageElement(bitmap, photoUri, tripId, photoId, pressureValue,temperatureValue,timeValue,GPSLatitude,GPSLongitude);
                     temp.add(element);
                     Log.i("debug", "setPhotos: (element) "+element);
                 }
@@ -140,8 +170,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
     }
 
 
-    public ImageAdapter(Context cont) {
+    public ImageAdapter(Context cont, MyViewModel myViewModel) {
         this.items = new ArrayList<>();
         this.context = cont;
+        this.myViewModel = myViewModel;
     }
 }

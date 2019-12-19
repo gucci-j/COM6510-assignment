@@ -98,4 +98,15 @@ public class PathAdapter extends RecyclerView.Adapter<PathAdapter.Trip_Holder> {
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
+
+
+    /**
+     * getTripBySwipe
+     * Desc: By swiping the entry, we can get the position & corresponding data.
+     * @param position int
+     * @return List<TripData>
+     */
+    public TripData getTripBySwipe(int position) {
+        return paths.get(position);
+    }
 }

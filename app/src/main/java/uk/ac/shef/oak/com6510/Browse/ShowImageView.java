@@ -45,7 +45,7 @@ public class ShowImageView extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         // Set an image adapter to the recyclerview
-        final ImageAdapter mAdapter = new ImageAdapter(ShowImageView.this);
+        final ImageAdapter mAdapter = new ImageAdapter(ShowImageView.this, myViewModel);
         mRecyclerView.setAdapter(mAdapter);
 
         // Set up Picture Lists

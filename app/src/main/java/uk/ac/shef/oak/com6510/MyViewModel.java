@@ -125,4 +125,18 @@ public class MyViewModel extends AndroidViewModel {
     public void getFullPath(int tripId, QueryGetFullPathByTripIdCallback callback){
         mRepository.getFullPath(tripId,callback);
     }
+
+
+    /**
+     * deleteTrip
+     * Desc: delete a trip entry which is swiped out by the user in the UI.
+     * @param tripData TripData
+     */
+    public void deleteTrip(TripData tripData) {
+        mRepository.deleteTrip(tripData);
+    }
+
+    public void deletePhoto(int photoId) {
+        mRepository.deletePhoto(photoId);
+    }
 }

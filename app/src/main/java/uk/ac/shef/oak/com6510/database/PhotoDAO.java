@@ -38,5 +38,8 @@ public interface PhotoDAO {
     @Query("SELECT * from photo_table WHERE trip_id = :tripId")
     List<PhotoData> getTripPhotosASync(int tripId);
 
-    // Delete, Edit, Retrieve group
+    // Delete an image entry specified by a unique id
+    // This operation does not delete an original photo in the gallery.
+    @Query("DELETE FROM photo_table WHERE id = :id")
+    void delete(int id);
 }

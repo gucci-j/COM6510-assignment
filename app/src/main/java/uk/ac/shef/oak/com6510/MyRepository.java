@@ -288,4 +288,50 @@ class MyRepository extends ViewModel {
             callback.onRetrieveFinished(data, adapter);
         }
     }
+
+    /**
+     * deleteTrip
+     * Desc: delete a trip from the TripData table.
+     * @param trip TripData from ViewModel (View)
+     */
+    public void deleteTrip(TripData trip) {
+        new deleteTripAsyncTask(mTripDBDao).execute(trip);
+    }
+
+    // AsyncTask<Params, Progress, Result>
+    private static class deleteTripAsyncTask extends AsyncTask<TripData, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private TripDAO mTripAsyncTaskDao;
+
+        private deleteTripAsyncTask(TripDAO mTripAsyncTaskDao) {
+            this.mTripAsyncTaskDao = mTripAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(TripData... trips) {
+            mTripAsyncTaskDao.delete(trips[0]);
+            return null;
+        }
+    }
+
+
+    public void deletePhoto(int id) {
+        new deletePhotoAsyncTask(mPhotoDBDao).execute(id);
+    }
+
+    // AsyncTask<Params, Progress, Result>
+    private static class deletePhotoAsyncTask extends AsyncTask<Integer, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private PhotoDAO mPhotoAsyncTaskDao;
+
+        private deletePhotoAsyncTask(PhotoDAO mPhotoAsyncTaskDao) {
+            this.mPhotoAsyncTaskDao = mPhotoAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... ids) {
+            mPhotoAsyncTaskDao.delete(ids[0]);
+            return null;
+        }
+    }
 }

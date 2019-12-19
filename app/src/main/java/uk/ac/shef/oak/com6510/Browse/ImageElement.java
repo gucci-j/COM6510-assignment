@@ -21,17 +21,19 @@ public class ImageElement implements Serializable {
     // Used for showing detailed information when an image is selected
     Uri uri = null;
     int tripId;
+    int photoId;
     String timeValue;
     Float pressureValue;
     Float temperatureValue;
     double GPSLatitude;
     double GPSLongitude;
 
-    public ImageElement(Bitmap fileX, Uri uriX,int tripId, Float pressureValue,
+    public ImageElement(Bitmap fileX, Uri uriX, int tripId, int photoId, Float pressureValue,
                         Float temperatureValue, String time, double GPSLatitude, double GPSLongitude) {
         file = fileX;
         uri = uriX;
         this.tripId = tripId;
+        this.photoId = photoId;
         this.pressureValue = pressureValue;
         this.temperatureValue = temperatureValue;
         this.timeValue = time;

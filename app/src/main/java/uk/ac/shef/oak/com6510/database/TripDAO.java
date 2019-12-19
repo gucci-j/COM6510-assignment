@@ -6,6 +6,7 @@ package uk.ac.shef.oak.com6510.database;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -32,9 +33,6 @@ public interface TripDAO {
     @Query("SELECT fullpath from trip_table WHERE id = :tripId LIMIT 1")
     String getFullPath(int tripId);
 
-    // Can add delete and update?
-    /*
     @Delete
-    void delete(NumberData numberData);
-     */
+    void delete(TripData tripData);
 }

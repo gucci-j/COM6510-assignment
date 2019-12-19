@@ -253,7 +253,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
-
             return;
         }
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
@@ -323,6 +322,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         barometer.startSensingPressure();
         thermometer.startSensingTemperature();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -543,8 +543,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private void onURIReturned(Uri uri, String timeStamp) {
         Log.i("debug/Maps", "onURIReturned (tripId): "+tripId);
         myViewModel.insertPhoto(uri.toString(), tripId, timeStamp, currentPressureValue, currentTemperatureValue, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-
-
     }
 
     /**

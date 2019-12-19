@@ -54,7 +54,7 @@ public class ShowImageByPathView extends AppCompatActivity implements QueryGetPh
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.grid_bypath_recycler);
 
         // Set an path adapter to the recycler view
-        adapter = new ImageAdapter(ShowImageByPathView.this);
+        adapter = new ImageAdapter(ShowImageByPathView.this, myViewModel);
         mRecyclerView.setAdapter(adapter);
         int numberOfColumns = 4;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));

@@ -83,7 +83,7 @@ public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View
                 +" "+currentData.getTitle()+" "+formattedDate);
 
         // Set an image adapter to the recyclerview
-        final ImageAdapter mAdapter = new ImageAdapter(context);
+        final ImageAdapter mAdapter = new ImageAdapter(context, myViewModel);
         holder.imageRecyclerView.setAdapter(mAdapter);
 
         // Set up the RecyclerView
@@ -127,5 +127,15 @@ public class ImagePathAdapter extends RecyclerView.Adapter<ImagePathAdapter.View
             textViewDate = itemView.findViewById(R.id.recycler_path_date);
             imageRecyclerView = itemView.findViewById(R.id.recycler_image);
         }
+    }
+
+    /**
+     * getTripBySwipe
+     * Desc: By swiping the entry, we can get the position & corresponding data.
+     * @param position int
+     * @return List<TripData>
+     */
+    public TripData getTripBySwipe(int position) {
+        return paths.get(position);
     }
 }
