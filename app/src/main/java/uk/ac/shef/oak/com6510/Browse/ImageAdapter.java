@@ -68,6 +68,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                     Intent intent = new Intent(context, ShowImageDetailsActivity.class);
                     intent.putExtra("position", position);
                     intent.putExtra("uri", items.get(position).uri.toString());
+                    intent.putExtra("tripId", items.get(position).tripId);
+                    intent.putExtra("pressureValue", items.get(position).pressureValue);
+                    intent.putExtra("temperatureValue", items.get(position).temperatureValue);
+                    intent.putExtra("Time", items.get(position).timeValue);
+                    intent.putExtra("Latitude", items.get(position).GPSLatitude);
+                    intent.putExtra("Longitude", items.get(position).GPSLongitude);
                     context.startActivity(intent);
                 }
             });
@@ -93,6 +99,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
             for (PhotoData photo: photos) {
                 ParcelFileDescriptor pfDescriptor = null;
                 Uri photoUri = Uri.parse(photo.getFilename());
+                int tripId = photo.getTripId();
+                Float pressureValue  = photo.getPressureValue();
+                Float temperatureValue= photo.getTemperatureValue();
+                String timeValue=photo.getTime();
+                double GPSLatitude=photo.getGPSLatitude();
+                double GPSLongitude=photo.getGPSLongitude();
                 Log.i("debug", "setPhotos: (photoUri) "+photoUri);
                 pfDescriptor = cont.getContentResolver().openFileDescriptor(photoUri, "r");
                 if (pfDescriptor != null) {
@@ -103,7 +115,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.View_Holder>
                                     ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
                     pfDescriptor.close();
 
-                    ImageElement element = new ImageElement(bitmap, photoUri);
+                    ImageElement element = new ImageElement(bitmap, photoUri,tripId,pressureValue,temperatureValue,timeValue,GPSLatitude,GPSLongitude);
                     temp.add(element);
                     Log.i("debug", "setPhotos: (element) "+element);
                 }

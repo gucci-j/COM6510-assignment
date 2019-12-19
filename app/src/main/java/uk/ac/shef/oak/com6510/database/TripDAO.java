@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -26,6 +27,14 @@ public interface TripDAO {
     @Query("SELECT * from trip_table WHERE title = :titleTrip AND date = :dateTrip LIMIT 1")
     TripData getTrip(String titleTrip, String dateTrip);
 
+    @Query("SELECT title from trip_table WHERE id = :tripId LIMIT 1")
+    String getTripTitle(int tripId);
+
+    @Query("UPDATE trip_table SET fullpath = :fullPath WHERE id = :tripId")
+    void update(int tripId, String fullPath);
+
+    @Query("SELECT fullpath from trip_table WHERE id = :tripId LIMIT 1")
+    String getFullPath(int tripId);
     // Can add delete and update?
 
     /*

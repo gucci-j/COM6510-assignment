@@ -19,8 +19,10 @@ import java.util.List;
 import uk.ac.shef.oak.com6510.Browse.ImageAdapter;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetFullPathByTripIdCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetTitleByTripIdCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
 public class MyViewModel extends AndroidViewModel {
@@ -57,7 +59,9 @@ public class MyViewModel extends AndroidViewModel {
     public void insertTrip(String tripTitle, String timeStamp, QueryInsertTripCallback callback) {
         mRepository.insertTrip(new TripData(tripTitle, timeStamp), callback);
     }
-
+    public void getTripTitle(int tripId,QueryGetTitleByTripIdCallback callback){
+        mRepository.getTripTitle(tripId,callback);
+    }
     public LiveData<List<TripData>> getAllTrips() {
         return allTrips;
     }
@@ -73,4 +77,11 @@ public class MyViewModel extends AndroidViewModel {
     public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
         mRepository.getPhotosByTripIdWAdapter(id, callback, adapter);
     }
+    public void update(int tripId,String fullPath){
+        mRepository.update(tripId,fullPath);
+    }
+    public void getFullPath(int tripId, QueryGetFullPathByTripIdCallback callback){
+        mRepository.getFullPath(tripId,callback);
+    }
+
 }

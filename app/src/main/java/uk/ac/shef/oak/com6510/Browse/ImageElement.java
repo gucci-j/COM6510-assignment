@@ -13,9 +13,20 @@ public class ImageElement implements Serializable {
     int image = -1;
     Bitmap file = null;
     Uri uri = null;
-
-    public ImageElement(Bitmap fileX, Uri uriX) {
+    int tripId;
+    String timeValue;
+    Float pressureValue;
+    Float temperatureValue;
+    double GPSLatitude;
+    double GPSLongitude;
+    public ImageElement(Bitmap fileX, Uri uriX,int tripId,Float pressureValue,Float temperatureValue,String time,double GPSLatitude,double GPSLongitude) {
         file = fileX;
         uri = uriX;
+        this.tripId=tripId;
+        this.pressureValue=pressureValue;
+        this.temperatureValue=temperatureValue;
+        this.timeValue=time;
+        this.GPSLatitude=GPSLatitude;
+        this.GPSLongitude=GPSLongitude;
     }
 }

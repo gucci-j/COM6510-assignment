@@ -6,6 +6,7 @@ package uk.ac.shef.oak.com6510;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -19,8 +20,10 @@ import uk.ac.shef.oak.com6510.database.PhotoDAO;
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripDAO;
 import uk.ac.shef.oak.com6510.database.TripData;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetFullPathByTripIdCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryGetPhotosByTripIDWAdapterCallback;
+import uk.ac.shef.oak.com6510.database.callbacks.QueryGetTitleByTripIdCallback;
 import uk.ac.shef.oak.com6510.database.callbacks.QueryInsertTripCallback;
 
 
@@ -28,7 +31,6 @@ class MyRepository extends ViewModel {
     private final TripDAO mTripDBDao;
     private final PhotoDAO mPhotoDBDao;
     private MyRoomDatabase db;
-
     // for storing all trips
     private LiveData<List<TripData>> allTrips;
     // for storing all photos
@@ -41,6 +43,7 @@ class MyRepository extends ViewModel {
         mPhotoDBDao = db.photoDao();
         allTrips = mTripDBDao.getAllTrips();
         allPhotos = mPhotoDBDao.getAllPhotos();
+
     }
 
 
@@ -74,6 +77,36 @@ class MyRepository extends ViewModel {
         }
     }
 
+    /**
+     * update
+     * Desc: update the full path with this trip id. The
+     *       updateAsyncTask function is to modify the database in async way
+     *       otherwise, will conflict with main thread
+     * @param tripId  id of tripdata which need to be modify
+     * @param fullPath  the total path in string type
+     */
+    public void update(int tripId, String fullPath) {
+        new updateAsyncTask(mTripDBDao,fullPath).execute(tripId);
+    }
+
+    private static class updateAsyncTask extends AsyncTask<Integer, Void, Void> {
+        // We need this because the class is static and cannot access to the repository.
+        private TripDAO mTripAsyncTaskDao;
+        private String fullPath;
+
+        private updateAsyncTask(TripDAO mTripAsyncTaskDao,String fullPath) {
+            this.mTripAsyncTaskDao = mTripAsyncTaskDao;
+            this.fullPath=fullPath;
+
+        }
+
+        @Override
+        protected Void doInBackground(Integer... tripId) {
+            mTripAsyncTaskDao.update(tripId[0],fullPath);
+            return null;
+        }
+
+    }
 
     /**
      * insertTrip
@@ -124,7 +157,81 @@ class MyRepository extends ViewModel {
         return mTripDBDao.getTrip(title, date);
     }
 
+    /**
+     * getTripTitle
+     * Desc: get the title with the particular id
+     *       asynctask is also called
+     *       callback is an interface to retrieve data, which implemented in the target activity
+     * @param tripId  id of tripdata which need to be modify
+     * @param callback the interface
+     */
+    public void getTripTitle(int tripId, QueryGetTitleByTripIdCallback callback) {
+        getTripTitleAsyncTask task= new getTripTitleAsyncTask(mTripDBDao,callback);
+        task.execute(tripId);
+    }
+    private static class getTripTitleAsyncTask extends AsyncTask<Integer, Void, String>{
+        private TripDAO mTripAsyncTaskDao;
+        private String tripTitle;
+        private QueryGetTitleByTripIdCallback callback;
 
+        private getTripTitleAsyncTask(TripDAO mTripAsyncTaskDao,QueryGetTitleByTripIdCallback callback){
+            this.mTripAsyncTaskDao=mTripAsyncTaskDao;
+            this.callback=callback;
+
+        }
+        @Override
+        protected String doInBackground(Integer...tripId){
+            tripTitle=mTripAsyncTaskDao.getTripTitle(tripId[0]);
+            return mTripAsyncTaskDao.getTripTitle(tripId[0]);
+        }
+        @Override
+        protected void onPostExecute(String title) {
+            super.onPostExecute(title);
+            tripTitle = title;
+            callback.onRetrieveFinished(title);
+
+        }
+
+    }
+
+    /**
+     * get FullPath
+     * Desc: get the full path using async way
+     * @param tripId  id of tripdata which need to be modify
+     * @param callback the interface
+     */
+    public void getFullPath(int tripId, QueryGetFullPathByTripIdCallback callback) {
+        getTripFullPathAsyncTask task= new getTripFullPathAsyncTask(mTripDBDao,callback);
+        task.execute(tripId);
+    }
+    private static class getTripFullPathAsyncTask extends AsyncTask<Integer, Void, String>{
+        private TripDAO mTripAsyncTaskDao;
+        private QueryGetFullPathByTripIdCallback callback;
+
+        private getTripFullPathAsyncTask(TripDAO mTripAsyncTaskDao,QueryGetFullPathByTripIdCallback callback){
+            this.mTripAsyncTaskDao=mTripAsyncTaskDao;
+            this.callback=callback;
+
+        }
+        @Override
+        protected String doInBackground(Integer...tripId){
+            return mTripAsyncTaskDao.getFullPath(tripId[0]);
+        }
+        @Override
+        protected void onPostExecute(String fullPath) {
+            super.onPostExecute(fullPath);
+            System.out.println("THE FULLPATH3"+fullPath);
+            callback.onRetrieveFullPathFinished(fullPath);
+
+        }
+
+    }
+    /**
+     * getPhotosByTripId
+     * Desc: get photo data with an id using async way
+     * @param id  id of tripdata which need to be modify
+     * @param callback  the interface
+     */
     public void getPhotosByTripId(int id, QueryGetPhotosByTripIDCallback callback) {
         new getPhotosByTripIdAsyncTask(mPhotoDBDao, callback).execute(id);
     }
@@ -133,6 +240,7 @@ class MyRepository extends ViewModel {
         // We need this because the class is static and cannot access to the repository.
         private PhotoDAO mPhotoAsyncTaskDao;
         private QueryGetPhotosByTripIDCallback callback;
+
 
         private getPhotosByTripIdAsyncTask(PhotoDAO mPhotoAsyncTaskDao, QueryGetPhotosByTripIDCallback callback) {
             this.mPhotoAsyncTaskDao = mPhotoAsyncTaskDao;
@@ -151,7 +259,13 @@ class MyRepository extends ViewModel {
             callback.onRetrieveFinished(data);
         }
     }
-
+    /**
+     * getPhotosByTripId
+     * Desc: get photo data by trip id with adapter using async way
+     * @param id  id of tripdata which need to be modify
+     * @param callback  the interface
+     * @param adapter  the return adapter for storing image
+     */
 
     public void getPhotosByTripIdWAdapter(int id, QueryGetPhotosByTripIDWAdapterCallback callback, ImageAdapter adapter) {
         new getPhotosByTripIdWAdapterAsyncTask(mPhotoDBDao, callback, adapter).execute(id);
@@ -176,7 +290,6 @@ class MyRepository extends ViewModel {
             List<PhotoData> data = mPhotoAsyncTaskDao.getTripPhotosASync(tripId[0]);
             return data;
         }
-
         @Override
         protected void onPostExecute(List<PhotoData> data) {
             // notify to the UI

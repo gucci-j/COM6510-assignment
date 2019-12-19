@@ -68,10 +68,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 import java.util.concurrent.TimeUnit;
 
 import uk.ac.shef.oak.com6510.database.PhotoData;
 import uk.ac.shef.oak.com6510.database.TripData;
+
+import static java.lang.String.valueOf;
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -98,11 +101,13 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private Thermometer thermometer;
     private Float currentPressureValue;
     private Float currentTemperatureValue;
-    private Location mCurrentLocation,mLastLocation;
+    private Location mCurrentLocation;
     private Marker mCurrentLocationMarker;
     private Float currentZoomLevel;
     private String mLastUpdateTime;
     private int tripId;
+    private Boolean isTheFirstLocation;
+    private String totalPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +136,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 stopLocationUpdates();
+                myViewModel.update(tripId,totalPath);
                 Intent intent = new Intent(Maps.this, MyView.class);
                 startActivity(intent);
             }
@@ -246,20 +252,23 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                     REQUEST_PERMISSION);
         }
     }
+
+    /**
+     * StartLocationUpdates
+     * Desc: start update the location
+     *       first is to check the permission
+     *       then request for the location callback, tracking started
+     */
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-
             } else {
-
                 // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         ACCESS_FINE_LOCATION);
@@ -374,12 +383,16 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 }
             }
 
-            if (mLastLocation != null) {
+            if (isTheFirstLocation == false) {
                 // Add the polyline if the location is not just start
-                mPolyline = mMap.addPolyline(new PolylineOptions()
-                        .add(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                mPolyline = mMap.addPolyline(mPolylineOptions
+                        .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                         .width(12)
                         .color(Color.BLUE));
+                totalPath=totalPath.concat(valueOf(mCurrentLocation.getLatitude()));
+                totalPath=totalPath.concat(" ");
+                totalPath=totalPath.concat(valueOf(mCurrentLocation.getLongitude()));
+                totalPath=totalPath.concat(" ");
 
             } else {
                 CircleOptions circleOptions = new CircleOptions();
@@ -396,7 +409,11 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 // Adding the circle to the GoogleMap
                 mMap.addCircle(circleOptions);
                 moveCameraToCurrentLocation(currentZoomLevel);
-
+                isTheFirstLocation=false;
+                totalPath=valueOf(mCurrentLocation.getLatitude());
+                totalPath=totalPath.concat(" ");
+                totalPath=totalPath.concat(valueOf(mCurrentLocation.getLongitude()));
+                totalPath=totalPath.concat(" ");
             }
         }
     };
@@ -466,29 +483,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         currentZoomLevel=14.0f;
-
-        // and next place it, on bottom right (as Google Maps app)
-        /*mMap.setMyLocationEnabled(true);
-        if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null) {
-            // Get the button view
-            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-            // and next place it, on bottom right (as Google Maps app)
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
-                    locationButton.getLayoutParams();
-            // position on right left
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
-            layoutParams.addRule(RelativeLayout.ALIGN_END, 0);
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            layoutParams.setMargins(30, 0, 0, 40);
-        }*/
-
+        isTheFirstLocation=true;
+        mPolylineOptions=new PolylineOptions();
     }
-
 
     /**
      * onActivityResult
@@ -571,8 +568,13 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         Log.i("debug/Maps", "onURIReturned (tripId): "+tripId);
         myViewModel.insertPhoto(uri.toString(), tripId, timeStamp, currentPressureValue, currentTemperatureValue, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
 
+
     }
 
+    /**
+     * DisplayPhotoLocation
+     * Desc: add mark to the location where a photo taken or a picture uploaded to the database from gallery
+     */
     private void displayPhotoLocation(){
         // update the location of this photo
         if (mMap != null)
